@@ -1,3 +1,25 @@
 <?php
-use Illuminate\Database\Migrations\Migration; use Illuminate\Database\Schema\Blueprint; use Illuminate\Support\Facades\Schema;
-return new class extends Migration { public function up(): void { Schema::create('court_price_rules', function (Blueprint $table) { $table->id(); $table->foreignId('court_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate(); $table->unsignedTinyInteger('day_of_week')->comment('0=Minggu sampai 6=Sabtu'); $table->time('start_time'); $table->time('end_time'); $table->decimal('price_per_hour',12,2); $table->timestamps(); $table->index(['court_id','day_of_week','start_time','end_time'],'price_rules_search_index'); }); } public function down(): void { Schema::dropIfExists('court_price_rules'); } };
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('court_price_rules', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('court_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedTinyInteger('day_of_week')->comment('0=Minggu sampai 6=Sabtu');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->decimal('price_per_hour', 12, 2);
+            $table->timestamps();
+            $table->index(['court_id', 'day_of_week', 'start_time', 'end_time'], 'price_rules_search_index');
+        });
+    }
+    public function down(): void
+    {
+        Schema::dropIfExists('court_price_rules');
+    }
+};
