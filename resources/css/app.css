@@ -2,8 +2,289 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Sport Center Brand Colors - Energetic, Modern, Non-Generic */
+    --color-brand-50: #f0fdf4;
+    --color-brand-100: #dcfce7;
+    --color-brand-200: #bbf7d0;
+    --color-brand-300: #86efac;
+    --color-brand-400: #4ade80;
+    --color-brand-500: #22c55e;
+    --color-brand-600: #16a34a;
+    --color-brand-700: #15803d;
+    --color-brand-800: #166534;
+    --color-brand-900: #14532d;
+    --color-brand-950: #052e16;
+
+    --color-energy-50: #fffbeb;
+    --color-energy-100: #fef3c7;
+    --color-energy-200: #fde68a;
+    --color-energy-300: #fcd34d;
+    --color-energy-400: #fbbf24;
+    --color-energy-500: #f59e0b;
+    --color-energy-600: #d97706;
+    --color-energy-700: #b45309;
+    --color-energy-800: #92400e;
+    --color-energy-900: #78350f;
+    --color-energy-950: #451a03;
+
+    --color-court-50: #f8fafc;
+    --color-court-100: #f1f5f9;
+    --color-court-200: #e2e8f0;
+    --color-court-300: #cbd5e1;
+    --color-court-400: #94a3b8;
+    --color-court-500: #64748b;
+    --color-court-600: #475569;
+    --color-court-700: #334155;
+    --color-court-800: #1e293b;
+    --color-court-900: #0f172a;
+    --color-court-950: #020617;
+
+    /* Semantic aliases */
+    --color-primary: var(--color-brand-600);
+    --color-primary-hover: var(--color-brand-700);
+    --color-primary-light: var(--color-brand-50);
+    --color-accent: var(--color-energy-500);
+    --color-accent-hover: var(--color-energy-600);
+    --color-surface: #ffffff;
+    --color-surface-elevated: #fafafa;
+    --color-text-primary: var(--color-court-950);
+    --color-text-secondary: var(--color-court-600);
+    --color-text-muted: var(--color-court-400);
+    --color-border: var(--color-court-200);
+    --color-border-strong: var(--color-court-300);
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, var(--color-brand-700) 0%, var(--color-brand-500) 50%, var(--color-energy-500) 100%);
+    --gradient-hero-alt: linear-gradient(135deg, var(--color-court-950) 0%, var(--color-brand-900) 50%, var(--color-brand-700) 100%);
+    --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    --gradient-accent: linear-gradient(135deg, var(--color-energy-500) 0%, var(--color-energy-600) 100%);
+    --gradient-mesh: radial-gradient(ellipse 80% 50% at 50% -20%, var(--color-brand-100) 0%, transparent 50%),
+                     radial-gradient(ellipse 60% 40% at 100% 100%, var(--color-energy-100) 0%, transparent 50%),
+                     radial-gradient(ellipse 50% 30% at 0% 100%, var(--color-brand-200) 0%, transparent 50%);
+
+    /* Spacing scale */
+    --space-18: 4.5rem;
+    --space-22: 5.5rem;
+    --space-30: 7.5rem;
+
+    /* Border radius */
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 2rem;
+
+    /* Shadows */
+    --shadow-soft: 0 2px 15px -3px rgba(15, 23, 42, 0.07), 0 10px 20px -2px rgba(15, 23, 42, 0.04);
+    --shadow-medium: 0 4px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 30px -5px rgba(15, 23, 42, 0.04);
+    --shadow-strong: 0 10px 40px -10px rgba(22, 163, 74, 0.25), 0 2px 10px -2px rgba(15, 23, 42, 0.06);
+    --shadow-glow: 0 0 40px -10px rgba(22, 163, 74, 0.4);
+    --shadow-inner-soft: inset 0 2px 4px 0 rgba(15, 23, 42, 0.03);
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Z-index */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-modal: 300;
+    --z-popover: 400;
+    --z-toast: 500;
+}
+
+/* Custom utilities using @utility */
+@utility container-page {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+@utility container-narrow {
+    @apply mx-auto max-w-3xl px-4 sm:px-6;
+}
+
+@utility text-balance {
+    text-wrap: balance;
+}
+
+@utility animate-fade-in {
+    animation: fadeIn var(--transition-base) ease-out forwards;
+}
+
+@utility animate-slide-up {
+    animation: slideUp var(--transition-slow) ease-out forwards;
+}
+
+@utility animate-slide-down {
+    animation: slideDown var(--transition-slow) ease-out forwards;
+}
+
+@utility animate-scale-in {
+    animation: scaleIn var(--transition-bounce) ease-out forwards;
+}
+
+@utility animate-shimmer {
+    animation: shimmer 2s infinite;
+}
+
+@utility gradient-text {
+    @apply bg-gradient-to-r from-brand-600 via-brand-500 to-energy-500 bg-clip-text text-transparent;
+}
+
+@utility gradient-text-dark {
+    @apply bg-gradient-to-r from-brand-300 via-brand-400 to-energy-400 bg-clip-text text-transparent;
+}
+
+@utility glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+}
+
+@utility glass-dark {
+    @apply bg-court-950/70 backdrop-blur-xl border border-court-800/50;
+}
+
+@utility card-base {
+    @apply bg-white rounded-2xl border border-court-100 shadow-soft transition-all duration-300 hover:shadow-medium hover:-translate-y-1;
+}
+
+@utility card-hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-2 hover:shadow-strong;
+}
+
+@utility btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-semibold text-white rounded-xl
+           bg-gradient-to-r from-brand-600 to-brand-700
+           hover:from-brand-700 hover:to-brand-800
+           active:from-brand-800 active:to-brand-900
+           shadow-soft hover:shadow-medium
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-brand-600 disabled:hover:to-brand-700 disabled:hover:shadow-soft;
+}
+
+@utility btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-semibold text-court-700 rounded-xl
+           bg-white border border-court-200
+           hover:bg-court-50 hover:border-court-300
+           active:bg-court-100
+           shadow-soft hover:shadow-medium
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-court-500/50 focus:ring-offset-2;
+}
+
+@utility btn-accent {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-semibold text-white rounded-xl
+           bg-gradient-to-r from-energy-500 to-energy-600
+           hover:from-energy-600 hover:to-energy-700
+           active:from-energy-700 active:to-energy-800
+           shadow-soft hover:shadow-medium
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-energy-500/50 focus:ring-offset-2;
+}
+
+@utility btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-court-600 rounded-lg
+           hover:bg-court-100 hover:text-court-900
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-court-500/50 focus:ring-offset-2;
+}
+
+@utility input-base {
+    @apply w-full px-4 py-3.5 text-base text-court-950 bg-white border border-court-200 rounded-xl
+           placeholder:text-court-400
+           transition-all duration-200
+           hover:border-court-300
+           focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500
+           disabled:bg-court-50 disabled:cursor-not-allowed;
+}
+
+@utility input-error {
+    @apply border-red-400 focus:ring-red-500/20 focus:border-red-500;
+}
+
+@utility label-base {
+    @apply block text-sm font-medium text-court-700 mb-2;
+}
+
+@utility link-base {
+    @apply text-brand-600 hover:text-brand-700 font-medium transition-colors duration-150 underline-offset-2 hover:underline;
+}
+
+@utility section-py {
+    @apply py-16 sm:py-20 lg:py-24 xl:py-28;
+}
+
+@utility section-py-sm {
+    @apply py-12 sm:py-16 lg:py-20;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-court-100);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-court-300);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-court-400);
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    @apply outline-none ring-2 ring-brand-500/50 ring-offset-2 ring-offset-white;
+}
+
+/* Selection */
+::selection {
+    background: var(--color-brand-200);
+    color: var(--color-brand-900);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
