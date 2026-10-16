@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    // Tampilkan halaman registrasi.
+    /**
+     * Tampilkan halaman registrasi.
+     */
     public function create(): View
     {
         return view('auth.register');
@@ -23,15 +26,9 @@ class RegisteredUserController extends Controller
      * Daftarkan user baru. Pendaftar otomatis mendapat role "customer";
      * role lain hanya bisa diatur oleh admin lewat panel.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:100', 'unique:users,email'],
-            'phone_number' => ['nullable', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'terms' => ['accepted'],
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'name' => $validated['name'],
@@ -45,6 +42,6 @@ class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard');
+        return redirect()->route('user.dashboard');
     }
 }

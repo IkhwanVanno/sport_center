@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -26,17 +27,56 @@ class AuthTest extends TestCase
         ], $attributes));
     }
 
-    public function test_users_can_authenticate(): void
+    public function test_customer_can_authenticate_and_redirects_to_user_dashboard(): void
     {
-        $user = $this->makeUser();
+        $customer = $this->makeUser(['role' => 'customer']);
 
         $response = $this->post('/login', [
-            'email' => $user->email,
+            'email' => $customer->email,
             'password' => 'Password123!',
         ]);
 
-        $this->assertAuthenticatedAs($user);
-        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($customer);
+        $response->assertRedirect(route('user.dashboard'));
+    }
+
+    public function test_operator_can_authenticate_and_redirects_to_operator_checkin(): void
+    {
+        $operator = $this->makeUser(['email' => 'operator@example.com', 'role' => 'operator']);
+
+        $response = $this->post('/login', [
+            'email' => $operator->email,
+            'password' => 'Password123!',
+        ]);
+
+        $this->assertAuthenticatedAs($operator);
+        $response->assertRedirect(route('operator.checkin.index'));
+    }
+
+    public function test_admin_can_authenticate_and_redirects_to_admin_dashboard(): void
+    {
+        $admin = $this->makeUser(['email' => 'admin@example.com', 'role' => 'admin']);
+
+        $response = $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'Password123!',
+        ]);
+
+        $this->assertAuthenticatedAs($admin);
+        $response->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_superadmin_can_authenticate_and_redirects_to_admin_dashboard(): void
+    {
+        $superadmin = $this->makeUser(['email' => 'superadmin@example.com', 'role' => 'superadmin']);
+
+        $response = $this->post('/login', [
+            'email' => $superadmin->email,
+            'password' => 'Password123!',
+        ]);
+
+        $this->assertAuthenticatedAs($superadmin);
+        $response->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_users_cannot_authenticate_with_invalid_password(): void
@@ -63,7 +103,7 @@ class AuthTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('user.dashboard'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'budi.baru@example.com',
@@ -86,37 +126,56 @@ class AuthTest extends TestCase
     public function test_guests_are_redirected_to_login(): void
     {
         $this->get('/dashboard')->assertRedirect(route('login'));
+        $this->get('/user/dashboard')->assertRedirect(route('login'));
+        $this->get('/operator/checkin')->assertRedirect(route('login'));
+        $this->get('/admin/dashboard')->assertRedirect(route('login'));
     }
 
     public function test_dashboard_redirects_to_role_dashboard(): void
     {
         $admin = $this->makeUser(['email' => 'admin@example.com', 'role' => 'admin']);
-
         $this->actingAs($admin)
             ->get('/dashboard')
             ->assertRedirect(route('admin.dashboard'));
-    }
 
-    public function test_role_middleware_allows_matching_role(): void
-    {
-        Route::middleware(['web', 'auth', 'role:admin'])
-            ->get('/_test/area-admin', fn () => 'ok')
-            ->name('test.area-admin');
-
-        $admin = $this->makeUser(['email' => 'admin@example.com', 'role' => 'admin']);
-
-        $this->actingAs($admin)->get('/_test/area-admin')->assertOk();
-    }
-
-    public function test_role_middleware_blocks_unauthorized_role(): void
-    {
-        Route::middleware(['web', 'auth', 'role:admin'])
-            ->get('/_test/area-admin', fn () => 'ok')
-            ->name('test.area-admin');
+        $operator = $this->makeUser(['email' => 'operator@example.com', 'role' => 'operator']);
+        $this->actingAs($operator)
+            ->get('/dashboard')
+            ->assertRedirect(route('operator.checkin.index'));
 
         $customer = $this->makeUser(['email' => 'customer@example.com', 'role' => 'customer']);
+        $this->actingAs($customer)
+            ->get('/dashboard')
+            ->assertRedirect(route('user.dashboard'));
+    }
 
-        $this->actingAs($customer)->get('/_test/area-admin')->assertForbidden();
+    public function test_role_middleware_handles_pipe_separated_multi_roles(): void
+    {
+        // Rute Operator & Superadmin
+        $operator = $this->makeUser(['email' => 'operator@example.com', 'role' => 'operator']);
+        $superadmin = $this->makeUser(['email' => 'superadmin@example.com', 'role' => 'superadmin']);
+        $admin = $this->makeUser(['email' => 'admin@example.com', 'role' => 'admin']);
+        $customer = $this->makeUser(['email' => 'customer@example.com', 'role' => 'customer']);
+
+        // Operator dan Superadmin boleh akses /operator/checkin
+        $this->actingAs($operator)->get('/operator/checkin')->assertOk();
+        $this->actingAs($superadmin)->get('/operator/checkin')->assertOk();
+        // Admin dan Customer ditolak akses ke /operator/checkin
+        $this->actingAs($admin)->get('/operator/checkin')->assertForbidden();
+        $this->actingAs($customer)->get('/operator/checkin')->assertForbidden();
+
+        // Admin dan Superadmin boleh akses /admin/dashboard
+        $this->actingAs($admin)->get('/admin/dashboard')->assertOk();
+        $this->actingAs($superadmin)->get('/admin/dashboard')->assertOk();
+        // Operator dan Customer ditolak akses ke /admin/dashboard
+        $this->actingAs($operator)->get('/admin/dashboard')->assertForbidden();
+        $this->actingAs($customer)->get('/admin/dashboard')->assertForbidden();
+
+        // Customer boleh akses /user/dashboard
+        $this->actingAs($customer)->get('/user/dashboard')->assertOk();
+        // Operator dan Admin ditolak akses ke /user/dashboard
+        $this->actingAs($operator)->get('/user/dashboard')->assertForbidden();
+        $this->actingAs($admin)->get('/user/dashboard')->assertForbidden();
     }
 
     public function test_users_can_logout(): void

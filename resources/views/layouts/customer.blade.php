@@ -16,7 +16,7 @@
 
                 <div class="flex items-center gap-6">
                     <a href="{{ route('home') }}" class="text-sm font-medium text-gray-600 hover:text-emerald-600">Sewa Lapangan</a>
-                    <a href="{{ route('customer.dashboard') }}" class="text-sm font-medium {{ request()->routeIs('customer.dashboard') ? 'text-emerald-600 font-bold' : 'text-gray-600 hover:text-emerald-600' }}">Booking Saya</a>
+                    <a href="{{ route('user.dashboard') }}" class="text-sm font-medium {{ request()->routeIs('user.dashboard') ? 'text-emerald-600 font-bold' : 'text-gray-600 hover:text-emerald-600' }}">Booking Saya</a>
                     
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open" class="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-emerald-600 focus:outline-none">

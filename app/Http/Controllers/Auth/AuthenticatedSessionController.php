@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +13,9 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    // Tampilkan halaman login.
+    /**
+     * Tampilkan halaman login.
+     */
     public function create(): View
     {
         return view('auth.login');
@@ -19,6 +23,10 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Proses login. Session di-regenerate untuk mencegah session fixation.
+     * Redirect berdasarkan role pengguna:
+     * - customer   => user.dashboard (/user/dashboard)
+     * - operator   => operator.checkin.index (/operator/checkin)
+     * - admin/superadmin => admin.dashboard (/admin/dashboard)
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -26,7 +34,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        $user = $request->user();
+
+        $targetRoute = match ($user?->role) {
+            'superadmin', 'admin' => 'admin.dashboard',
+            'operator' => 'operator.checkin.index',
+            default => 'user.dashboard',
+        };
+
+        return redirect()->intended(route($targetRoute));
     }
 
     /**

@@ -1,47 +1,23 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# AI Development Working Guidelines (AGENTS.md)
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+Sebagai AI Assistant / Developer yang mengerjakan proyek **Sport Center**, Anda wajib mematuhi instruksi dan batasan teknis berikut dalam setiap pembuatan kode program:
 
-## Prerequisites
+## 1. Prinsip Utama Kode
+* **No Inline Logic in Controllers:** Seluruh logika bisnis pemesanan, pengecekan ketersediaan, dan kalkulasi harga **harus** ditempatkan di dalam class Service di folder `app/Services/`.
+* **Zero Race Conditions:** Pembentukan record booking wajib dibungkus di dalam `DB::transaction()` dan memanfaatkan `lockForUpdate()` untuk mencegah pembentukan booking ganda pada slot jam yang sama.
+* **Strict Type Declarations:** Gunakan type hinting pada function arguments dan return values PHP 8.3+.
 
-Verify that PHP and Composer are available:
+## 2. Standar Penulisan Kode Laravel
+* **Validation:** Gunakan *Custom Form Request* (`app/Http/Requests/`) untuk seluruh validasi input dari user/admin. Jangan melakukan validasi langsung di dalam Controller.
+* **Authorization:** Lindungi endpoint peka menggunakan *Laravel Policy* (`app/Policies/`) untuk mencegah celah keamanan IDOR (Insecure Direct Object References).
+* **Database Migration:** Selalu sertakan foreign key constraint lengkap (`ON DELETE RESTRICT` atau `ON DELETE CASCADE`) dan index komposit pada kolom yang sering di-query.
 
-```sh
-php -v
-composer -V
-```
+## 3. Aturan UI/UX (Blade & Tailwind)
+* Mengacu pada struktur folder `resources/views/` yang telah ditentukan di `ARCHITECTURE.md`.
+* Gunakan Blade Layouts (`layouts/app.blade.php`, `layouts/admin.blade.php`) dan terapkan komponen yang reusable (`<x-badge-status>`, `<x-alert>`).
+* Pastikan UI bersifat *responsive* dan teruji baik pada ukuran layar Mobile maupun Desktop.
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
-
-macOS:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## 4. Batasan & Larangan
+* **Dilarang** hardcode ID atau nilai variabel peka di dalam kode. Selalu gunakan file konfigurasi `.env`.
+* **Dilarang** menghapus atau merusak struktur tabel database yang telah ditetapkan pada `DATABASE.md`.
+* **Dilarang** melakukan update status pembayaran online secara langsung di sisi frontend tanpa validasi verifikasi server-side / webhook signature key.
