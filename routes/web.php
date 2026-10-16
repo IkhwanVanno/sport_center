@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => view('home'))->name('home');
+Route::get('/', fn () => view('public.home'))->name('home');
 
 // Rute untuk pengunjung yang belum login.
 Route::middleware('guest')->group(function () {

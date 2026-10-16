@@ -23,18 +23,18 @@ class DashboardController extends Controller
     // Dashboard superadmin & admin (statistik dan manajemen).
     public function admin(): View
     {
-        return view('dashboard.admin');
+        return view('admin.dashboard');
     }
 
     // Dashboard operator cabang (verifikasi pembayaran dan check-in).
     public function operator(): View
     {
-        return view('dashboard.operator');
+        return view('operator.dashboard');
     }
 
     // Dashboard pelanggan (daftar booking miliknya).
     public function customer(): View
     {
-        return view('dashboard.customer');
+        return view('customer.dashboard');
     }
 }

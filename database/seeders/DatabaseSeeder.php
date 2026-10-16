@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
 
         // Pengguna: password default password123
         DB::table('users')->upsert([
-            ['id' => 1, 'branch_id' => null, 'name' => 'Superadmin Utama', 'email' => 'superadmin@sportcenter.com', 'phone_number' => '08111111111', 'password' => Hash::make('password123'), 'role' => 'superadmin'],
+            ['id' => 1, 'branch_id' => null, 'name' => 'Superadmin Utama', 'email' => ' ', 'phone_number' => '08111111111', 'password' => Hash::make('password123'), 'role' => 'superadmin'],
             ['id' => 2, 'branch_id' => 1, 'name' => 'Admin Cabang MERR', 'email' => 'admin.merr@sportcenter.com', 'phone_number' => '08222222222', 'password' => Hash::make('password123'), 'role' => 'admin'],
             ['id' => 3, 'branch_id' => 1, 'name' => 'Operator Kasir MERR', 'email' => 'operator.merr@sportcenter.com', 'phone_number' => '08333333333', 'password' => Hash::make('password123'), 'role' => 'operator'],
             ['id' => 4, 'branch_id' => null, 'name' => 'Budi Santoso (Customer)', 'email' => 'budi@gmail.com', 'phone_number' => '085712345678', 'password' => Hash::make('password123'), 'role' => 'customer'],
