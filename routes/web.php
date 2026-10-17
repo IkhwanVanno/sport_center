@@ -57,7 +57,7 @@ Route::middleware(['auth', 'role:customer'])->prefix('user')->name('user.')->gro
 });
 
 // Fallback alias jika ada komponen yang memanggil customer.dashboard
-Route::get('/customer/dashboard', fn () => redirect()->route('user.dashboard'))
+Route::get('/customer/dashboard', fn() => redirect()->route('user.dashboard'))
     ->middleware(['auth', 'role:customer'])
     ->name('customer.dashboard');
 
@@ -65,7 +65,7 @@ Route::get('/customer/dashboard', fn () => redirect()->route('user.dashboard'))
 // 5. OPERATOR ROUTES (Kasir / Staff Lapangan)
 // ==========================================
 Route::middleware(['auth', 'role:operator|superadmin'])->prefix('operator')->name('operator.')->group(function () {
-    Route::get('/dashboard', fn () => redirect()->route('operator.checkin.index'))->name('dashboard');
+    Route::get('/dashboard', fn() => redirect()->route('operator.checkin.index'))->name('dashboard');
     Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
     Route::post('/checkin/verify', [CheckInController::class, 'verify'])->name('checkin.verify');
     Route::post('/walk-in-booking', [CheckInController::class, 'storeWalkIn'])->name('walkin.store');
@@ -78,8 +78,9 @@ Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('adm
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('branches', BranchController::class);
     Route::resource('courts', CourtController::class);
-    Route::resource('price-rules', PriceRuleController::class);
+    Route::resource('price-rules', PriceRuleController::class)->except(['show', 'edit', 'update']);
     Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
     Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
     Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
 });
