@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Court;
+use App\Services\AvailabilityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,26 +22,47 @@ class CatalogController extends Controller
     }
 
     /**
-     * Tampilkan daftar lapangan.
+     * Tampilkan daftar lapangan aktif.
      */
     public function list(Request $request): View
     {
-        return view('public.courts.index');
+        $courts = Court::query()
+            ->with(['branch', 'sport', 'facilities'])
+            ->where('is_active', true)
+            ->get();
+
+        return view('public.courts.index', compact('courts'));
     }
 
     /**
      * Tampilkan detail lapangan tertentu.
      */
-    public function show(Request $request, string $slug): View
+    public function show(Court $court): View
     {
-        return view('public.courts.show');
+        $court->load(['branch', 'sport', 'facilities']);
+
+        return view('public.courts.show', compact('court'));
     }
 
     /**
-     * Cek ketersediaan slot lapangan.
+     * Cek ketersediaan slot lapangan pada tanggal tertentu.
      */
-    public function checkAvailability(Request $request, $court): JsonResponse
+    public function checkAvailability(Request $request, Court $court, AvailabilityService $availability): JsonResponse
     {
-        return response()->json(['available' => true]);
+        $validated = $request->validate([
+            'date' => 'required|date|after_or_equal:today',
+        ]);
+
+        $slots = $availability->getSlots($court, $validated['date']);
+
+        return response()->json([
+            'court_id' => $court->id,
+            'court_name' => $court->name,
+            'date' => $validated['date'],
+            'open_time' => AvailabilityService::OPEN_TIME,
+            'close_time' => AvailabilityService::CLOSE_TIME,
+            'slots' => $slots,
+            'available_count' => count(array_filter($slots, fn (array $slot) => $slot['status'] === 'available')),
+        ]);
     }
 }
