@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Branch;
-use App\Models\Court;
-use App\Models\CourtPriceRule;
-use App\Models\Sport;
 use App\Services\PricingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use Tests\Concerns\CreatesCourts;
 use Tests\TestCase;
 
 class PricingServiceTest extends TestCase
 {
+    use CreatesCourts;
     use RefreshDatabase;
 
     private PricingService $service;
@@ -24,43 +22,6 @@ class PricingServiceTest extends TestCase
         parent::setUp();
 
         $this->service = app(PricingService::class);
-    }
-
-    private function makeCourt(int $basePrice = 120000): Court
-    {
-        $branch = Branch::create([
-            'name' => 'Sport Center Uji',
-            'slug' => 'sport-center-uji',
-            'address' => 'Jl. Pengujian No. 1, Surabaya',
-            'phone' => '081234567890',
-            'is_active' => true,
-        ]);
-
-        $sport = Sport::create([
-            'name' => 'Futsal Uji',
-            'slug' => 'futsal-uji',
-            'icon' => 'heroicon-o-futbol',
-        ]);
-
-        return Court::create([
-            'branch_id' => $branch->id,
-            'sport_id' => $sport->id,
-            'name' => 'Lapangan Futsal Uji A',
-            'slug' => 'futsal-uji-a',
-            'base_price_per_hour' => $basePrice,
-            'is_active' => true,
-        ]);
-    }
-
-    private function makeRule(Court $court, int $day, string $start, string $end, int $price): CourtPriceRule
-    {
-        return CourtPriceRule::create([
-            'court_id' => $court->id,
-            'day_of_week' => $day,
-            'start_time' => $start,
-            'end_time' => $end,
-            'price_per_hour' => $price,
-        ]);
     }
 
     public function test_menghitung_biaya_dari_tarif_dasar(): void
