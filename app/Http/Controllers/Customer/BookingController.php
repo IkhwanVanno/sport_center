@@ -9,6 +9,7 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BookingController extends Controller
@@ -34,10 +35,12 @@ class BookingController extends Controller
     }
 
     /**
-     * Tampilkan detail booking (kode, jadwal, tagihan).
+     * Tampilkan detail booking (kode, jadwal, tagihan) milik pelanggan sendiri.
      */
-    public function show(Booking $booking): View
+    public function show(Request $request, Booking $booking): View
     {
+        abort_unless($booking->user_id === $request->user()?->id, 403);
+
         $booking->load(['court.branch', 'court.sport', 'items', 'payments']);
 
         return view('customer.bookings.show', compact('booking'));

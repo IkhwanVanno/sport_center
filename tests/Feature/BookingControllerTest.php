@@ -52,6 +52,34 @@ class BookingControllerTest extends TestCase
         $this->assertDatabaseCount('bookings', 0);
     }
 
+    public function test_lapangan_yang_tidak_aktif_tidak_bisa_dipesan(): void
+    {
+        $court = $this->makeCourt();
+        $court->update(['is_active' => false]);
+        $customer = $this->makeCustomer();
+
+        $this->actingAs($customer)
+            ->post(route('user.bookings.store'), [
+                'court_id' => $court->id,
+                'date' => now()->addDay()->toDateString(),
+                'slots' => ['08:00'],
+            ])
+            ->assertSessionHasErrors('court_id');
+
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    public function test_pelanggan_lain_tidak_bisa_membuka_detail_booking_orang_lain(): void
+    {
+        $court = $this->makeCourt();
+        $booking = $this->makeBooking($court);
+        $pelangganLain = $this->makeCustomer();
+
+        $this->actingAs($pelangganLain)
+            ->get(route('user.bookings.show', $booking->booking_code))
+            ->assertForbidden();
+    }
+
     public function test_operator_tidak_dapat_memesan_melalui_form_pelanggan(): void
     {
         $court = $this->makeCourt();
