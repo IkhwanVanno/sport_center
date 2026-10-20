@@ -33,6 +33,11 @@
                 <span>Aturan Tarif</span>
             </a>
 
+            <a href="{{ route('admin.facilities.index') }}" class="nav-link {{ request()->routeIs('admin.facilities.*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard2"></i>
+                <span>Fasilitas</span>
+            </a>
+
             <div class="sidebar-heading">Transaksi</div>
 
             <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">

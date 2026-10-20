@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CourtController;
+use App\Http\Controllers\Admin\FacilitiesController;
 use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\PriceRuleController;
 use App\Http\Controllers\Admin\ReportController;
@@ -89,6 +90,7 @@ Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('adm
     Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
     Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
     Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('/facilities', [FacilitiesController::class, 'index'])->name('facilities.index');
 });
 
 // ==========================================
