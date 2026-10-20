@@ -16,7 +16,27 @@
     <!-- Filter Card -->
     <div class="card card-custom p-3 border-0 shadow-sm">
         <form method="GET" action="{{ route('admin.orders.index') }}" class="row g-2 align-items-center">
-            <div class="col-md-4 col-sm-6">
+            @if(auth()->user()->isSuperAdmin())
+                <div class="col-md-3 col-sm-6">
+                    <select name="branch_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Semua Cabang Sport Center</option>
+                        @foreach($branches as $b)
+                            <option value="{{ $b->id }}" {{ (string) request('branch_id') === (string) $b->id ? 'selected' : '' }}>
+                                {{ $b->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @else
+                <div class="col-md-3 col-sm-6">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light text-secondary"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Cabang</span>
+                        <input type="text" class="form-control bg-light" value="{{ auth()->user()->branch->name ?? 'Cabang Anda' }}" readonly disabled>
+                    </div>
+                </div>
+            @endif
+
+            <div class="col-md-2 col-sm-6">
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">Semua Status Booking</option>
                     <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Bayar</option>
@@ -28,7 +48,7 @@
                 </select>
             </div>
 
-            <div class="col-md-4 col-sm-6">
+            <div class="col-md-3 col-sm-6">
                 <select name="payment_status" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">Semua Status Pembayaran</option>
                     <option value="unpaid" {{ request('payment_status') === 'unpaid' ? 'selected' : '' }}>Belum Lunas</option>
@@ -38,10 +58,17 @@
                 </select>
             </div>
 
-            <div class="col-md-4 text-md-end">
-                @if(request()->hasAny(['status', 'payment_status']))
-                    <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-x-circle me-1"></i>Reset Filter
+            <div class="col-md-3 col-sm-6">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Kode booking / pemesan...">
+                    <button type="submit" class="btn btn-indigo"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+
+            <div class="col-md-1 text-md-end">
+                @if(request()->hasAny(['branch_id', 'status', 'payment_status', 'search']))
+                    <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter">
+                        <i class="bi bi-x-circle"></i>
                     </a>
                 @endif
             </div>

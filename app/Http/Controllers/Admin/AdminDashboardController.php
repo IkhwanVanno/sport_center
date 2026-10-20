@@ -5,29 +5,24 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\Court;
+use App\Services\AdminDashboardService;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected AdminDashboardService $dashboardService
+    ) {}
+
+    /**
+     * Menampilkan halaman ringkasan metrik dashboard admin.
+     * Metrik otomatis terisolasi berdasarkan role (Superadmin vs Admin Cabang).
+     */
+    public function index(Request $request): View
     {
-        $totalRevenue = Booking::where('payment_status', 'paid')->sum('total_amount');
-        $todayBookings = Booking::whereDate('booking_date', today())->count();
-        $pendingVerifications = Booking::where('payment_status', 'pending_verification')->count();
-        $activeCourts = Court::where('is_active', true)->count();
+        $metrics = $this->dashboardService->getDashboardMetrics($request->user());
 
-        $recentBookings = Booking::with(['user', 'court'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('admin.dashboard', compact(
-            'totalRevenue',
-            'todayBookings',
-            'pendingVerifications',
-            'activeCourts',
-            'recentBookings'
-        ));
+        return view('admin.dashboard', $metrics);
     }
 }

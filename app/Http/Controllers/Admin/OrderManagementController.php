@@ -1,49 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Branch;
+use App\Services\OrderManagementService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class OrderManagementController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(
+        protected OrderManagementService $orderService
+    ) {}
+
+    /**
+     * Menampilkan daftar pesanan sewa lapangan dengan scoping cabang.
+     */
+    public function index(Request $request): View
     {
-        $query = Booking::with(['user', 'court.branch']);
+        Gate::authorize('viewAny', Booking::class);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        $status = $request->query('status');
+        $paymentStatus = $request->query('payment_status');
+        $branchId = $request->filled('branch_id') ? (int) $request->query('branch_id') : null;
+        $search = $request->query('search');
 
-        if ($request->filled('payment_status')) {
-            $query->where('payment_status', $request->payment_status);
-        }
+        $bookings = $this->orderService->listOrders(
+            $request->user(),
+            $status,
+            $paymentStatus,
+            $branchId,
+            $search,
+            15
+        );
 
-        $bookings = $query->latest()->paginate(15);
-        return view('admin.orders.index', compact('bookings'));
+        $branches = $request->user()->isSuperAdmin()
+            ? Branch::where('is_active', true)->orderBy('name')->get()
+            : Branch::where('id', $request->user()->branch_id)->get();
+
+        return view('admin.orders.index', compact('bookings', 'branches', 'status', 'paymentStatus', 'branchId', 'search'));
     }
 
-    public function show(Booking $booking)
+    /**
+     * Menampilkan detail pesanan.
+     * Mencegah IDOR: Gate::authorize('view', $booking).
+     */
+    public function show(Booking $booking): View
     {
+        Gate::authorize('view', $booking);
+
         $booking->load(['user', 'court.branch', 'items', 'payments']);
+
         return view('admin.orders.show', compact('booking'));
     }
 
-    public function confirmPayment(Booking $booking)
+    /**
+     * Mengonfirmasi pembayaran pesanan secara manual via service layer (pessimistic locking).
+     * Mencegah IDOR: Gate::authorize('confirmPayment', $booking).
+     */
+    public function confirmPayment(Booking $booking): RedirectResponse
     {
-        $booking->update([
-            'status' => 'confirmed',
-            'payment_status' => 'paid',
-        ]);
+        Gate::authorize('confirmPayment', $booking);
 
-        if ($booking->payments()->exists()) {
-            $booking->payments()->latest()->first()->update([
-                'status' => 'success',
-                'paid_at' => now(),
-            ]);
-        }
+        $this->orderService->confirmPayment($booking);
 
-        return redirect()->back()->with('success', 'Pembayaran berhasil dikonfirmasi secara manual.');
+        return redirect()
+            ->back()
+            ->with('success', 'Pembayaran berhasil dikonfirmasi secara manual.');
     }
 }

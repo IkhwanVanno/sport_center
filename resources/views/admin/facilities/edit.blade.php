@@ -63,7 +63,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($facilities as $item)
+                                @forelse ($facility as $item)
                                     <tr class="{{ $item->id == $facility->id ? 'table-primary' : '' }}">
                                         <td class="ps-3"><i class="{{ $item->icon ?? 'bi bi-check-circle' }} text-primary fs-6"></i></td>
                                         <td class="fw-semibold text-dark">

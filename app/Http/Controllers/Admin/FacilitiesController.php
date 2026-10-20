@@ -1,59 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\FacilityRequest;
 use App\Models\Facility;
-use Illuminate\Http\Request;
+use App\Services\FacilityService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class FacilitiesController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected FacilityService $facilityService
+    ) {}
+
+    /**
+     * Menampilkan daftar fasilitas master.
+     */
+    public function index(): View
     {
-        $facilities = Facility::all();
+        Gate::authorize('viewAny', Facility::class);
+
+        $facilities = $this->facilityService->listFacilities();
+
         return view('admin.facilities.index', compact('facilities'));
     }
 
-    public function create()
+    /**
+     * Menampilkan form penambahan fasilitas (Khusus Superadmin).
+     */
+    public function create(): View
     {
-        $facilities = Facility::all();
-        return view('admin.facilities.create', compact('facilities'));
+        Gate::authorize('create', Facility::class);
+
+        return view('admin.facilities.create');
     }
 
-    public function edit($id)
+    /**
+     * Menyimpan fasilitas baru (Khusus Superadmin).
+     */
+    public function store(FacilityRequest $request): RedirectResponse
     {
-        $facility = Facility::findOrFail($id);
-        $facilities = Facility::all();
-        return view('admin.facilities.edit', compact('facility', 'facilities'));
+        $this->facilityService->storeFacility($request->validated());
+
+        return redirect()
+            ->route('admin.facilities.index')
+            ->with('success', 'Master fasilitas berhasil ditambahkan.');
     }
 
-    public function store(Request $request)
+    /**
+     * Menampilkan form edit fasilitas (Khusus Superadmin).
+     */
+    public function edit(Facility $facility): View
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'icon' => 'nullable|string|max:255',
-        ]);
+        Gate::authorize('update', $facility);
 
-        Facility::create($validated);
-        return redirect()->route('admin.facilities.index')->with('success', 'Facility created successfully.');
+        return view('admin.facilities.edit', compact('facility'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Memperbarui data fasilitas (Khusus Superadmin).
+     */
+    public function update(FacilityRequest $request, Facility $facility): RedirectResponse
     {
-        $facility = Facility::findOrFail($id);
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'icon' => 'nullable|string|max:255',
-        ]);
+        Gate::authorize('update', $facility);
 
-        $facility->update($validated);
-        return redirect()->route('admin.facilities.index')->with('success', 'Facility updated successfully.');
+        $this->facilityService->updateFacility($facility, $request->validated());
+
+        return redirect()
+            ->route('admin.facilities.index')
+            ->with('success', 'Master fasilitas berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    /**
+     * Menghapus fasilitas dari sistem (Khusus Superadmin).
+     */
+    public function destroy(Facility $facility): RedirectResponse
     {
-        $facility = Facility::findOrFail($id);
-        $facility->delete();
-        return redirect()->route('admin.facilities.index')->with('success', 'Facility deleted successfully.');
+        Gate::authorize('delete', $facility);
+
+        $this->facilityService->deleteFacility($facility);
+
+        return redirect()
+            ->route('admin.facilities.index')
+            ->with('success', 'Master fasilitas berhasil dihapus.');
     }
 }

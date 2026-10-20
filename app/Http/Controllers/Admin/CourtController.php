@@ -1,82 +1,108 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
+use App\Http\Requests\Admin\CourtRequest;
 use App\Models\Court;
-use App\Models\Facility;
-use App\Models\Sport;
+use App\Services\CourtService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class CourtController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected CourtService $courtService
+    ) {}
+
+    /**
+     * Menampilkan daftar lapangan sesuai hak akses user (scoping cabang).
+     */
+    public function index(Request $request): View
     {
-        $courts = Court::with(['branch', 'sport'])->latest()->paginate(10);
-        return view('admin.courts.index', compact('courts'));
+        Gate::authorize('viewAny', Court::class);
+
+        $branchId = $request->filled('branch_id') ? (int) $request->query('branch_id') : null;
+        $sportId = $request->filled('sport_id') ? (int) $request->query('sport_id') : null;
+
+        $courts = $this->courtService->listCourts($request->user(), $branchId, $sportId, 10);
+        $branches = $this->courtService->getBranchOptions($request->user());
+        $sports = $this->courtService->getSportOptions();
+
+        return view('admin.courts.index', compact('courts', 'branches', 'sports', 'branchId', 'sportId'));
     }
 
-    public function create()
+    /**
+     * Menampilkan form pembuatan lapangan baru.
+     */
+    public function create(Request $request): View
     {
-        $branches = Branch::where('is_active', true)->get();
-        $sports = Sport::all();
-        $facilities = Facility::all();
+        Gate::authorize('create', Court::class);
+
+        $branches = $this->courtService->getBranchOptions($request->user());
+        $sports = $this->courtService->getSportOptions();
+        $facilities = $this->courtService->getFacilityOptions();
+
         return view('admin.courts.create', compact('branches', 'sports', 'facilities'));
     }
 
-    public function store(Request $request)
+    /**
+     * Menyimpan data lapangan baru ke database via service layer.
+     */
+    public function store(CourtRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'sport_id' => 'required|exists:sports,id',
-            'name' => 'required|string|max:100',
-            'base_price_per_hour' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'facilities' => 'array|nullable',
-        ]);
+        $this->courtService->storeCourt($request->user(), $request->validated());
 
-        $validated['slug'] = Str::slug($request->name);
-        $court = Court::create($validated);
-        $court->facilities()->sync($validated['facilities'] ?? []);
-
-        return redirect()->route('admin.courts.index')->with('success', 'Lapangan berhasil ditambahkan.');
+        return redirect()
+            ->route('admin.courts.index')
+            ->with('success', 'Lapangan olahraga berhasil ditambahkan.');
     }
 
-    public function edit(Court $court)
+    /**
+     * Menampilkan form edit lapangan.
+     * Mencegah IDOR: Gate::authorize('update', $court).
+     */
+    public function edit(Request $request, Court $court): View
     {
-        $branches = Branch::where('is_active', true)->get();
-        $sports = Sport::all();
-        $facilities = Facility::all();
+        Gate::authorize('update', $court);
+
+        $branches = $this->courtService->getBranchOptions($request->user());
+        $sports = $this->courtService->getSportOptions();
+        $facilities = $this->courtService->getFacilityOptions();
         $court->load('facilities');
+
         return view('admin.courts.edit', compact('court', 'branches', 'sports', 'facilities'));
     }
 
-    public function update(Request $request, Court $court)
+    /**
+     * Memperbarui data lapangan via service layer.
+     */
+    public function update(CourtRequest $request, Court $court): RedirectResponse
     {
-        $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'sport_id' => 'required|exists:sports,id',
-            'name' => 'required|string|max:100',
-            'base_price_per_hour' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'facilities' => 'array|nullable',
-        ]);
+        Gate::authorize('update', $court);
 
-        $validated['slug'] = Str::slug($request->name);
-        $court->update($validated);
-        $court->facilities()->sync($validated['facilities'] ?? []);
+        $this->courtService->updateCourt($request->user(), $court, $request->validated());
 
-        return redirect()->route('admin.courts.index')->with('success', 'Data lapangan berhasil diperbarui.');
+        return redirect()
+            ->route('admin.courts.index')
+            ->with('success', 'Data lapangan berhasil diperbarui.');
     }
 
-    public function destroy(Court $court)
+    /**
+     * Menghapus lapangan dari sistem.
+     */
+    public function destroy(Court $court): RedirectResponse
     {
-        $court->facilities()->detach();
-        $court->delete();
-        return redirect()->route('admin.courts.index')->with('success', 'Lapangan berhasil dihapus.');
+        Gate::authorize('delete', $court);
+
+        $this->courtService->deleteCourt($court);
+
+        return redirect()
+            ->route('admin.courts.index')
+            ->with('success', 'Lapangan berhasil dihapus.');
     }
 }

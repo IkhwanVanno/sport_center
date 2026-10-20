@@ -50,12 +50,14 @@ class FrontendPagesTest extends TestCase
 
     public function test_admin_pages_render_successfully(): void
     {
-        $admin = $this->makeCustomer(['role' => 'admin']);
         $court = $this->makeCourt();
+        $superadmin = $this->makeCustomer(['role' => 'superadmin']);
+        $admin = $this->makeCustomer(['role' => 'admin', 'branch_id' => $court->branch_id]);
+
+        $this->actingAs($superadmin)->get(route('admin.branches.index'))->assertOk()->assertSee('Daftar Cabang Fasilitas');
+        $this->actingAs($superadmin)->get(route('admin.branches.create'))->assertOk()->assertSee('Tambah Cabang Baru');
 
         $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()->assertSee('Ringkasan Statistik');
-        $this->actingAs($admin)->get(route('admin.branches.index'))->assertOk()->assertSee('Daftar Cabang Fasilitas');
-        $this->actingAs($admin)->get(route('admin.branches.create'))->assertOk()->assertSee('Tambah Cabang Baru');
         $this->actingAs($admin)->get(route('admin.courts.index'))->assertOk()->assertSee('Daftar Lapangan Olahraga');
         $this->actingAs($admin)->get(route('admin.courts.create'))->assertOk()->assertSee('Tambah Lapangan Baru');
         $this->actingAs($admin)->get(route('admin.price-rules.index'))->assertOk()->assertSee('Aturan Tarif Dinamis');

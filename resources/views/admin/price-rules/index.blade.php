@@ -17,6 +17,29 @@
         </a>
     </div>
 
+    <!-- Filter Card -->
+    <div class="card card-custom p-3 border-0 shadow-sm">
+        <form method="GET" action="{{ route('admin.price-rules.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-6 col-sm-8">
+                <select name="court_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Semua Lapangan Olahraga</option>
+                    @foreach($courts as $c)
+                        <option value="{{ $c->id }}" {{ (string) request('court_id') === (string) $c->id ? 'selected' : '' }}>
+                            {{ $c->name }} ({{ $c->branch->name ?? 'Cabang' }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-6 col-sm-4 text-sm-end">
+                @if(request()->filled('court_id'))
+                    <a href="{{ route('admin.price-rules.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1"></i>Reset Filter
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <!-- Table Card -->
     <div class="card card-custom border-0 shadow-sm overflow-hidden">
         <div class="table-responsive">

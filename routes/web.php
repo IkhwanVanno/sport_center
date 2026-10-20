@@ -82,17 +82,26 @@ Route::middleware(['auth', 'role:operator|superadmin'])->prefix('operator')->nam
 // ==========================================
 // 6. ADMIN & SUPERADMIN ROUTES
 // ==========================================
-Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('branches', BranchController::class);
-    Route::resource('sports', SportController::class);
-    Route::resource('courts', CourtController::class);
-    Route::resource('price-rules', PriceRuleController::class)->except(['show', 'edit', 'update']);
-    Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
-    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
-    Route::resource('facilities', FacilitiesController::class);
+Route::prefix('admin')->name('admin.')->group(function () {
+    // 6.1 Shared Routes (Superadmin & Admin Cabang Terisolasi)
+    Route::middleware(['auth', 'role:admin|superadmin', 'admin.branch'])->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('courts', CourtController::class);
+        Route::resource('price-rules', PriceRuleController::class)->except(['show', 'edit', 'update']);
+        Route::resource('facilities', FacilitiesController::class);
+        Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
+        Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    });
+
+    // 6.2 Superadmin Only Routes (Akses Global Seluruh Cabang & Master Data Kunci)
+    Route::middleware(['auth', 'role:superadmin'])->group(function () {
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::post('/users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::resource('branches', BranchController::class);
+        Route::resource('sports', SportController::class);
+    });
 });
 
 // ==========================================

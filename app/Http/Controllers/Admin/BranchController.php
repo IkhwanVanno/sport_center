@@ -1,63 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BranchRequest;
 use App\Models\Branch;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Services\BranchService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class BranchController extends Controller
 {
-public function index()
+    public function __construct(
+        protected BranchService $branchService
+    ) {}
+
+    /**
+     * Menampilkan daftar semua cabang sport center (Khusus Superadmin).
+     */
+    public function index(): View
     {
-        $branches = Branch::withCount('courts')->latest()->paginate(10);
+        Gate::authorize('viewAny', Branch::class);
+
+        $branches = $this->branchService->listBranches(10);
+
         return view('admin.branches.index', compact('branches'));
     }
 
-    public function create()
+    /**
+     * Menampilkan form tambah cabang baru (Khusus Superadmin).
+     */
+    public function create(): View
     {
+        Gate::authorize('create', Branch::class);
+
         return view('admin.branches.create');
     }
 
-    public function store(Request $request)
+    /**
+     * Menyimpan cabang baru ke database.
+     */
+    public function store(BranchRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'address' => 'required|string',
-            'phone' => 'required|string|max:20',
-            'is_active' => 'boolean',
-        ]);
+        $this->branchService->storeBranch($request->validated());
 
-        $validated['slug'] = Str::slug($request->name);
-        Branch::create($validated);
-
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil ditambahkan.');
+        return redirect()
+            ->route('admin.branches.index')
+            ->with('success', 'Cabang sport center berhasil ditambahkan.');
     }
 
-    public function edit(Branch $branch)
+    /**
+     * Menampilkan form edit cabang (Khusus Superadmin).
+     */
+    public function edit(Branch $branch): View
     {
+        Gate::authorize('update', $branch);
+
         return view('admin.branches.edit', compact('branch'));
     }
 
-    public function update(Request $request, Branch $branch)
+    /**
+     * Memperbarui data cabang di database.
+     */
+    public function update(BranchRequest $request, Branch $branch): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'address' => 'required|string',
-            'phone' => 'required|string|max:20',
-            'is_active' => 'boolean',
-        ]);
+        Gate::authorize('update', $branch);
 
-        $validated['slug'] = Str::slug($request->name);
-        $branch->update($validated);
+        $this->branchService->updateBranch($branch, $request->validated());
 
-        return redirect()->route('admin.branches.index')->with('success', 'Data cabang berhasil diperbarui.');
+        return redirect()
+            ->route('admin.branches.index')
+            ->with('success', 'Data cabang berhasil diperbarui.');
     }
 
-    public function destroy(Branch $branch)
+    /**
+     * Menghapus cabang dari database.
+     */
+    public function destroy(Branch $branch): RedirectResponse
     {
-        $branch->delete();
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil dihapus.');
+        Gate::authorize('delete', $branch);
+
+        $this->branchService->deleteBranch($branch);
+
+        return redirect()
+            ->route('admin.branches.index')
+            ->with('success', 'Cabang berhasil dihapus.');
     }
 }
