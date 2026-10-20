@@ -90,7 +90,7 @@ Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('adm
     Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
     Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
     Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
-    Route::get('/facilities', [FacilitiesController::class, 'index'])->name('facilities.index');
+    Route::resource('facilities', FacilitiesController::class);
 });
 
 // ==========================================
