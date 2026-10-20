@@ -87,17 +87,16 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 <!-- fasilitas -->
                 <div class="mb-3">
                     <label for="facilities" class="form-label small fw-semibold text-secondary">Fasilitas Tambahan</label>
-                    <select name="facilities[]" id="facilities" class="form-select @error('facilities') is-invalid @enderror" multiple>
-                        @foreach($facilities as $facility)
-                        <option value="{{ $facility->id }}" {{ (collect(old('facilities'))->contains($facility->id)) ? 'selected' : '' }}>
-                            {{ $facility->name }}
-                        </option>
-                        @endforeach
-                    </select>
+                    @foreach ($facilities as $facility)
+                    <div class="form-check">
+                        <input type="checkbox" name="facilities[]" id="facility_{{ $facility->id }}" value="{{ $facility->id }}" class="form-check-input" {{ (collect(old('facilities'))->contains($facility->id)) ? 'checked' : '' }}>
+                        <label for="facility_{{ $facility->id }}" class="form-check-label">{{ $facility->name }}</label>
+                    </div>
+                    @endforeach
                     @error('facilities')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
