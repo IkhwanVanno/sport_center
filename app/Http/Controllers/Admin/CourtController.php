@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Court;
+use App\Models\Facility;
 use App\Models\Sport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -21,7 +22,8 @@ class CourtController extends Controller
     {
         $branches = Branch::where('is_active', true)->get();
         $sports = Sport::all();
-        return view('admin.courts.create', compact('branches', 'sports'));
+        $facilities = Facility::all();
+        return view('admin.courts.create', compact('branches', 'sports', 'facilities'));
     }
 
     public function store(Request $request)
@@ -33,10 +35,12 @@ class CourtController extends Controller
             'base_price_per_hour' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
+            'facilities' => 'array|nullable',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
-        Court::create($validated);
+        $court = Court::create($validated);
+        $court->facilities()->sync($validated['facilities'] ?? []);
 
         return redirect()->route('admin.courts.index')->with('success', 'Lapangan berhasil ditambahkan.');
     }
@@ -45,7 +49,9 @@ class CourtController extends Controller
     {
         $branches = Branch::where('is_active', true)->get();
         $sports = Sport::all();
-        return view('admin.courts.edit', compact('court', 'branches', 'sports'));
+        $facilities = Facility::all();
+        $court->load('facilities');
+        return view('admin.courts.edit', compact('court', 'branches', 'sports', 'facilities'));
     }
 
     public function update(Request $request, Court $court)
@@ -57,16 +63,19 @@ class CourtController extends Controller
             'base_price_per_hour' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
+            'facilities' => 'array|nullable',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
         $court->update($validated);
+        $court->facilities()->sync($validated['facilities'] ?? []);
 
         return redirect()->route('admin.courts.index')->with('success', 'Data lapangan berhasil diperbarui.');
     }
 
     public function destroy(Court $court)
     {
+        $court->facilities()->detach();
         $court->delete();
         return redirect()->route('admin.courts.index')->with('success', 'Lapangan berhasil dihapus.');
     }
