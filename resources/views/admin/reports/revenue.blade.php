@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Laporan Omzet Pendapatan')
+@section('title', 'Laporan')
 
 @section('content')
 <div class="d-flex flex-column gap-4">

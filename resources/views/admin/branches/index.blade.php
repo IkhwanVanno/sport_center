@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Daftar Cabang Olahraga')
+@section('title', 'Cabang')
 
 @section('content')
 <div class="d-flex flex-column gap-4">
@@ -13,7 +13,7 @@
         </div>
         <a href="{{ route('admin.branches.create') }}" class="btn btn-indigo px-4 py-2.5 rounded-3 fw-semibold small shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-plus-circle"></i>
-            <span>+ Tambah Cabang Baru</span>
+            <span>Tambah Cabang Baru</span>
         </a>
     </div>
 

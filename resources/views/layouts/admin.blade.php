@@ -3,22 +3,31 @@
 @section('body-class', 'overflow-x-hidden bg-light')
 
 @section('layout-content')
-<div class="d-flex min-vh-100">
+<div class="d-flex min-vh-100 overflow-x-hidden">
     <!-- Admin Sidebar Partial -->
     @include('partials.admin-sidebar')
 
     <!-- Admin Main Content Area -->
     <div class="flex-grow-1 d-flex flex-column min-vh-100 overflow-y-auto">
         <!-- Admin Topbar -->
-        <header class="bg-white border-bottom border-light shadow-sm py-3 px-4 d-flex justify-content-between align-items-center sticky-top">
-            <div class="d-flex align-items-center gap-3">
-                <span class="fs-5 fw-bold text-dark">
+        <header class="bg-white border-bottom border-light shadow-sm py-3 px-2 px-md-4 d-flex flex-wrap justify-content-between align-items-center gap-2 sticky-top">
+            <button class="btn btn-light border d-lg-none"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#adminSidebar"
+                aria-controls="adminSidebar"
+                aria-label="Buka menu navigasi">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <span class="fs-5 fw-bold text-dark text-truncate">
                     @yield('title', 'Admin Panel')
                 </span>
+
                 @if(Auth::user()->branch)
-                    <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle small">
-                        <i class="bi bi-geo-alt-fill me-1"></i>{{ Auth::user()->branch->name }}
-                    </span>
+                <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle small d-none d-sm-inline-flex">
+                    <i class="bi bi-geo-alt-fill me-1"></i>{{ Auth::user()->branch->name }}
+                </span>
                 @endif
             </div>
 
@@ -39,7 +48,9 @@
                                 <span>Lihat Website Publik</span>
                             </a>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Dashboard')
+@section('title', 'Dashboard')
 
 @section('content')
 <div class="d-flex flex-column gap-4">
@@ -15,7 +15,7 @@
 
     <!-- Quick Metric Cards -->
     <div class="row g-3">
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="card card-custom p-4 border-0 shadow-sm h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-muted small fw-semibold text-uppercase">Total Pendapatan</span>
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="card card-custom p-4 border-0 shadow-sm h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-muted small fw-semibold text-uppercase">Booking Hari Ini</span>
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="card card-custom p-4 border-0 shadow-sm h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-muted small fw-semibold text-uppercase">Verifikasi Transfer</span>
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="card card-custom p-4 border-0 shadow-sm h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-muted small fw-semibold text-uppercase">Lapangan Aktif</span>

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Fasilitas')
+@section('title', 'Fasilitas')
 
 @section('content')
 <div class="container-fluid px-0">
@@ -11,7 +11,7 @@
             <p class="text-muted small mb-0">Kelola master fasilitas pendukung untuk lapangan olahraga</p>
         </div>
         <a href="{{ route('admin.facilities.create') }}" class="btn btn-primary fw-semibold px-3 py-2">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Fasilitas
+            <i class="bi bi-plus-lg me-1"></i>Tambah Fasilitas
         </a>
     </div>
 

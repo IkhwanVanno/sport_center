@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Daftar Lapangan Olahraga')
+@section('title', 'Lapangan')
 
 @section('content')
 <div class="d-flex flex-column gap-4">
@@ -13,7 +13,7 @@
         </div>
         <a href="{{ route('admin.courts.create') }}" class="btn btn-indigo px-4 py-2.5 rounded-3 fw-semibold small shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-plus-circle"></i>
-            <span>+ Tambah Lapangan Baru</span>
+            <span>Tambah Lapangan Baru</span>
         </a>
     </div>
 

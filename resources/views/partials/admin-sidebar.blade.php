@@ -1,12 +1,26 @@
-<aside class="app-sidebar shadow-sm">
+<aside class="app-sidebar shadow-sm offcanvas-lg offcanvas-start"
+    tabindex="-1"
+    id="adminSidebar"
+    aria-labelledby="adminSidebarLabel">
     <div>
         <!-- Brand / Header -->
         <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
-            <a href="{{ route('admin.dashboard') }}" class="text-white text-decoration-none d-flex align-items-center gap-2 fw-bold fs-6">
+            <a href="{{ route('admin.dashboard') }}"
+                class="text-decoration-none d-flex align-items-center gap-2 fw-bold fs-6"s
+                id="adminSidebarLabel">
                 <span class="fs-4">⚽</span>
                 <span>SPORT CENTER</span>
             </a>
-            <span class="badge bg-secondary-subtle text-secondary small" style="font-size: 0.65rem;">ADMIN</span>
+
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary-subtle text-secondary small">ADMIN</span>
+
+                <button type="button"
+                    class="btn-close btn-close-white d-lg-none"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Tutup menu">
+                </button>
+            </div>
         </div>
 
         <!-- Navigation Links -->
