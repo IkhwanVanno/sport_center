@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CheckInController extends Controller
@@ -41,8 +42,10 @@ class CheckInController extends Controller
     public function verify(Request $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validate([
-            'booking_code' => 'required|string',
+            'booking_code' => 'requi red|string',
         ]);
+
+        $operator = $request->user();
 
         $booking = Booking::with(['user', 'court.branch'])
             ->where('booking_code', trim($validated['booking_code']))
@@ -53,6 +56,14 @@ class CheckInController extends Controller
                 return response()->json(['message' => 'Kode booking tidak ditemukan di sistem.'], 404);
             }
             return back()->with('error', 'Kode booking tidak ditemukan.');
+        }
+
+        if ($operator?->branch_id && $booking->court->branch_id !== $operator->branch_id) {
+            $message = 'Gagal! Kode booking ini milik cabang ' . $booking->court->branch->name . '.';
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $message], 403);
+            }
+            return back()->with('error', $message);
         }
 
         if ($booking->status === 'in_use') {
@@ -93,7 +104,7 @@ class CheckInController extends Controller
         $branchId = $operator?->branch_id;
 
         $courts = Court::where('is_active', true)
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->with(['sport', 'branch'])
             ->get();
 
@@ -105,8 +116,18 @@ class CheckInController extends Controller
      */
     public function storeWalkIn(Request $request, BookingService $bookingService): JsonResponse|RedirectResponse
     {
+        $operator = $request->user();
+
         $validated = $request->validate([
-            'court_id' => 'required|exists:courts,id',
+            'court_id' => [
+                'required',
+                Rule::exists('courts', 'id')->where(function ($query) use ($operator) {
+                    $query->where('is_active', true);
+                    if ($operator?->branch_id) {
+                        $query->where('branch_id', $operator->branch_id);
+                    }
+                }),
+            ],
             'date' => 'required|date',
             'slots' => 'required|array|min:1',
             'customer_name' => 'required|string|max:100',
@@ -171,7 +192,7 @@ class CheckInController extends Controller
         $date = $request->input('date', today()->toDateString());
 
         $courts = Court::where('is_active', true)
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->with(['sport', 'branch'])
             ->get();
 

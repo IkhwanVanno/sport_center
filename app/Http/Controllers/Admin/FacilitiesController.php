@@ -36,8 +36,8 @@ class FacilitiesController extends Controller
     public function create(): View
     {
         Gate::authorize('create', Facility::class);
-
-        return view('admin.facilities.create');
+        $facilities = $this->facilityService->listFacilities();
+        return view('admin.facilities.create', compact('facilities'));
     }
 
     /**
@@ -58,8 +58,8 @@ class FacilitiesController extends Controller
     public function edit(Facility $facility): View
     {
         Gate::authorize('update', $facility);
-
-        return view('admin.facilities.edit', compact('facility'));
+        $facilities = $this->facilityService->listFacilities();
+        return view('admin.facilities.edit', compact('facility', 'facilities'));
     }
 
     /**
