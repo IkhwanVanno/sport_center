@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Aturan Tarif Khusus (Peak Hours)')
+@section('title', 'Aturan Tarif')
 
 @section('content')
 <div class="d-flex flex-column gap-4">
@@ -13,7 +13,7 @@
         </div>
         <a href="{{ route('admin.price-rules.create') }}" class="btn btn-indigo px-4 py-2.5 rounded-3 fw-semibold small shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-plus-circle"></i>
-            <span>+ Tambah Aturan Tarif</span>
+            <span>Tambah Aturan Tarif</span>
         </a>
     </div>
 
