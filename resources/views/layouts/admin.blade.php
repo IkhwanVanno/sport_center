@@ -24,9 +24,13 @@
                     @yield('title', 'Admin Panel')
                 </span>
 
-                @if(Auth::user()->branch)
-                <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle small d-none d-sm-inline-flex">
-                    <i class="bi bi-geo-alt-fill me-1"></i>{{ Auth::user()->branch->name }}
+                @if(Auth::user()->isSuperAdmin())
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle small d-none d-sm-inline-flex align-items-center">
+                    <i class="bi bi-globe me-1"></i>Superadmin — Akses Seluruh Cabang
+                </span>
+                @elseif(Auth::user()->branch)
+                <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle small d-none d-sm-inline-flex align-items-center fw-semibold">
+                    <i class="bi bi-geo-alt-fill me-1"></i>Admin - {{ Auth::user()->branch->name }}
                 </span>
                 @endif
             </div>
@@ -38,8 +42,13 @@
 
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light border dropdown-toggle rounded-pill px-3 py-1.5 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-shield-lock-fill text-indigo me-1"></i>
-                        <span>{{ strtoupper(Auth::user()->role ?? 'ADMIN') }}</span>
+                        @if(Auth::user()->isSuperAdmin())
+                            <i class="bi bi-shield-shaded text-danger me-1"></i>
+                            <span class="text-danger">SUPERADMIN</span>
+                        @else
+                            <i class="bi bi-shield-lock-fill text-indigo me-1"></i>
+                            <span>ADMIN CABANG</span>
+                        @endif
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
                         <li>

@@ -8,11 +8,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold text-dark mb-1">Daftar Fasilitas</h4>
-            <p class="text-muted small mb-0">Kelola master fasilitas pendukung untuk lapangan olahraga</p>
+            <p class="text-muted small mb-0">
+                @if(auth()->user()->isSuperAdmin())
+                    Kelola master fasilitas pendukung secara global untuk seluruh cabang.
+                @else
+                    Daftar fasilitas olahraga yang dapat ditugaskan pada lapangan di cabang Anda.
+                @endif
+            </p>
         </div>
-        <a href="{{ route('admin.facilities.create') }}" class="btn btn-primary fw-semibold px-3 py-2">
-            <i class="bi bi-plus-lg me-1"></i>Tambah Fasilitas
-        </a>
+        @can('create', App\Models\Facility::class)
+            <a href="{{ route('admin.facilities.create') }}" class="btn btn-indigo fw-semibold px-3 py-2 rounded-3 shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Fasilitas
+            </a>
+        @endcan
     </div>
 
     <!-- Card Table -->
@@ -46,16 +54,23 @@
                                 <td><code>{{ $facility->icon ?? '-' }}</code></td>
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="{{ route('admin.facilities.edit', $facility->id) }}" class="btn btn-sm btn-outline-warning">
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </a>
-                                        <form action="{{ route('admin.facilities.destroy', $facility->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i> Hapus
-                                            </button>
-                                        </form>
+                                        @can('update', $facility)
+                                            <a href="{{ route('admin.facilities.edit', $facility) }}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                        @endcan
+                                        @can('delete', $facility)
+                                            <form action="{{ route('admin.facilities.destroy', $facility) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        @cannot('update', $facility)
+                                            <span class="badge bg-light text-muted border">Master Global</span>
+                                        @endcannot
                                     </div>
                                 </td>
                             </tr>

@@ -1,46 +1,75 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Court;
+use App\Http\Requests\Admin\PriceRuleRequest;
 use App\Models\CourtPriceRule;
+use App\Services\PriceRuleService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class PriceRuleController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected PriceRuleService $priceRuleService
+    ) {}
+
+    /**
+     * Menampilkan daftar aturan tarif dengan scoping cabang.
+     */
+    public function index(Request $request): View
     {
-        $priceRules = CourtPriceRule::with('court.branch')->latest()->paginate(10);
-        return view('admin.price-rules.index', compact('priceRules'));
+        Gate::authorize('viewAny', CourtPriceRule::class);
+
+        $courtId = $request->filled('court_id') ? (int) $request->query('court_id') : null;
+
+        $priceRules = $this->priceRuleService->listPriceRules($request->user(), $courtId, 10);
+        $courts = $this->priceRuleService->getCourtOptions($request->user());
+
+        return view('admin.price-rules.index', compact('priceRules', 'courts', 'courtId'));
     }
 
-    public function create()
+    /**
+     * Menampilkan form penambahan aturan tarif khusus.
+     */
+    public function create(Request $request): View
     {
-        $courts = Court::where('is_active', true)->with('branch')->get();
+        Gate::authorize('create', CourtPriceRule::class);
+
+        $courts = $this->priceRuleService->getCourtOptions($request->user());
+
         return view('admin.price-rules.create', compact('courts'));
     }
 
-    public function store(Request $request)
+    /**
+     * Menyimpan aturan tarif baru via service layer.
+     */
+    public function store(PriceRuleRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'court_id' => 'required|exists:courts,id',
-            'day_of_week' => 'required|integer|between:0,6',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'price_per_hour' => 'required|numeric|min:0',
-        ]);
+        $this->priceRuleService->storePriceRule($request->user(), $request->validated());
 
-        CourtPriceRule::create($validated);
-
-        return redirect()->route('admin.price-rules.index')->with('success', 'Aturan tarif berhasil ditambahkan.');
+        return redirect()
+            ->route('admin.price-rules.index')
+            ->with('success', 'Aturan tarif berhasil ditambahkan.');
     }
 
-    public function destroy(CourtPriceRule $priceRule)
+    /**
+     * Menghapus aturan tarif.
+     * Mencegah IDOR: Gate::authorize('delete', $priceRule).
+     */
+    public function destroy(CourtPriceRule $priceRule): RedirectResponse
     {
-        $priceRule->delete();
-        return redirect()->route('admin.price-rules.index')->with('success', 'Aturan tarif berhasil dihapus.');
+        Gate::authorize('delete', $priceRule);
+
+        $this->priceRuleService->deletePriceRule($priceRule);
+
+        return redirect()
+            ->route('admin.price-rules.index')
+            ->with('success', 'Aturan tarif berhasil dihapus.');
     }
 }

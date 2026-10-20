@@ -6,14 +6,18 @@
         <!-- Brand / Header -->
         <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
             <a href="{{ route('admin.dashboard') }}"
-                class="text-decoration-none d-flex align-items-center gap-2 fw-bold fs-6"s
+                class="text-decoration-none d-flex align-items-center gap-2 fw-bold fs-6"
                 id="adminSidebarLabel">
                 <span class="fs-4">⚽</span>
                 <span>SPORT CENTER</span>
             </a>
 
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-secondary-subtle text-secondary small">ADMIN</span>
+                @if(Auth::user()->isSuperAdmin())
+                    <span class="badge bg-danger-subtle text-danger small fw-bold">SUPERADMIN</span>
+                @else
+                    <span class="badge bg-primary-subtle text-primary small fw-bold">ADMIN CABANG</span>
+                @endif
 
                 <button type="button"
                     class="btn-close btn-close-white d-lg-none"
@@ -30,17 +34,28 @@
                 <span>Dashboard</span>
             </a>
 
-            <div class="sidebar-heading">Master Data</div>
+            {{-- MENU KHUSUS SUPERADMIN: AKUN, CABANG, OLAHRAGA --}}
+            @if(Auth::user()->isSuperAdmin())
+                <div class="sidebar-heading">Akses Global (Superadmin)</div>
 
-            <a href="{{ route('admin.branches.index') }}" class="nav-link {{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
-                <i class="bi bi-building"></i>
-                <span>Cabang</span>
-            </a>
+                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Akun Pengguna</span>
+                </a>
 
-            <a href="{{ route('admin.sports.index') }}" class="nav-link {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}">
-                <i class="bi bi-dribbble"></i>
-                <span>Jenis Olahraga</span>
-            </a>
+                <a href="{{ route('admin.branches.index') }}" class="nav-link {{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i>
+                    <span>Cabang</span>
+                </a>
+
+                <a href="{{ route('admin.sports.index') }}" class="nav-link {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}">
+                    <i class="bi bi-dribbble"></i>
+                    <span>Jenis Olahraga</span>
+                </a>
+            @endif
+
+            {{-- MENU OPERASIONAL CABANG (SUPERADMIN & ADMIN CABANG) --}}
+            <div class="sidebar-heading">Lapangan & Fasilitas</div>
 
             <a href="{{ route('admin.courts.index') }}" class="nav-link {{ request()->routeIs('admin.courts.*') ? 'active' : '' }}">
                 <i class="bi bi-trophy"></i>
@@ -80,7 +95,13 @@
                 <i class="bi bi-person-circle fs-4 text-emerald"></i>
                 <div class="text-truncate">
                     <div class="small fw-bold text-white text-truncate">{{ Auth::user()->name ?? 'Administrator' }}</div>
-                    <div class="text-secondary" style="font-size: 0.72rem;">{{ strtoupper(Auth::user()->role ?? 'ADMIN') }}</div>
+                    @if(Auth::user()->isSuperAdmin())
+                        <div class="text-danger small fw-semibold" style="font-size: 0.72rem;">SUPERADMIN (GLOBAL)</div>
+                    @else
+                        <div class="text-secondary small fw-semibold text-truncate" style="font-size: 0.72rem;">
+                            {{ Auth::user()->branch->name ?? 'ADMIN CABANG' }}
+                        </div>
+                    @endif
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">

@@ -24,16 +24,22 @@
                     <!-- Cabang -->
                     <div class="col-md-6">
                         <label for="branch_id" class="form-label small fw-semibold text-secondary">Lokasi Cabang <span class="text-danger">*</span></label>
-                        <select name="branch_id" id="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
-                            @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('branch_id', $court->branch_id) == $branch->id ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('branch_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        @if(auth()->user()->isSuperAdmin())
+                            <select name="branch_id" id="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
+                                @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id', $court->branch_id) == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @error('branch_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        @else
+                            <input type="hidden" name="branch_id" value="{{ auth()->user()->branch_id }}">
+                            <input type="text" class="form-control bg-light" value="{{ $court->branch->name ?? auth()->user()->branch->name }}" readonly disabled>
+                            <span class="form-text text-muted small"><i class="bi bi-info-circle me-1"></i>Otomatis terhubung dengan cabang Anda.</span>
+                        @endif
                     </div>
 
                     <!-- Jenis Olahraga -->

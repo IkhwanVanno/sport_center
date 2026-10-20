@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias middleware custom, dipakai lewat "role:admin,operator" di route.
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'admin.branch' => \App\Http\Middleware\EnsureAdminBranchAccess::class,
         ]);
 
         // Arah redirect: tamu ke login, user yang sudah login ke dashboard.

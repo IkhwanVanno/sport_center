@@ -41,14 +41,21 @@
 
             <div class="col-12 col-sm-6 col-md-4">
                 <label for="branch_id" class="form-label small fw-semibold text-secondary">Filter Cabang</label>
-                <select name="branch_id" id="branch_id" class="form-select form-select-sm">
-                    <option value="">Semua Cabang Fasilitas</option>
-                    @foreach($branches as $b)
-                        <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>
-                            {{ $b->name }}
-                        </option>
-                    @endforeach
-                </select>
+                @if(auth()->user()->isSuperAdmin())
+                    <select name="branch_id" id="branch_id" class="form-select form-select-sm">
+                        <option value="">Semua Cabang Fasilitas (Konsolidasi)</option>
+                        @foreach($branches as $b)
+                            <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>
+                                {{ $b->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @else
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light text-secondary"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Cabang</span>
+                        <input type="text" class="form-control bg-light" value="{{ auth()->user()->branch->name ?? 'Cabang Anda' }}" readonly disabled>
+                    </div>
+                @endif
             </div>
 
             <div class="col-12 col-sm-6 col-md-2">

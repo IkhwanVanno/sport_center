@@ -17,6 +17,50 @@
         </a>
     </div>
 
+    <!-- Filter Card -->
+    <div class="card card-custom p-3 border-0 shadow-sm">
+        <form method="GET" action="{{ route('admin.courts.index') }}" class="row g-2 align-items-center">
+            @if(auth()->user()->isSuperAdmin())
+                <div class="col-md-4 col-sm-6">
+                    <select name="branch_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Semua Lokasi Cabang</option>
+                        @foreach($branches as $b)
+                            <option value="{{ $b->id }}" {{ (string) request('branch_id') === (string) $b->id ? 'selected' : '' }}>
+                                {{ $b->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @else
+                <div class="col-md-4 col-sm-6">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light text-secondary"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Cabang</span>
+                        <input type="text" class="form-control bg-light" value="{{ auth()->user()->branch->name ?? 'Cabang Anda' }}" readonly disabled>
+                    </div>
+                </div>
+            @endif
+
+            <div class="col-md-4 col-sm-6">
+                <select name="sport_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Semua Jenis Olahraga</option>
+                    @foreach($sports as $s)
+                        <option value="{{ $s->id }}" {{ (string) request('sport_id') === (string) $s->id ? 'selected' : '' }}>
+                            {{ $s->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-4 text-md-end">
+                @if(request()->hasAny(['branch_id', 'sport_id']))
+                    <a href="{{ route('admin.courts.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1"></i>Reset Filter
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <!-- Courts Table Card -->
     <div class="card card-custom border-0 shadow-sm overflow-hidden">
         <div class="table-responsive">

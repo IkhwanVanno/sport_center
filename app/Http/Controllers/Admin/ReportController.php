@@ -1,32 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\Branch;
+use App\Services\ReportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class ReportController extends Controller
 {
-    public function revenue(Request $request)
+    public function __construct(
+        protected ReportService $reportService
+    ) {}
+
+    /**
+     * Menampilkan laporan omzet pendapatan dengan scoping cabang.
+     */
+    public function revenue(Request $request): View
     {
+        Gate::authorize('viewAny', Booking::class);
+
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
-        $branchId = $request->input('branch_id');
+        $branchId = $request->filled('branch_id') ? (int) $request->input('branch_id') : null;
 
-        $query = Booking::where('payment_status', 'paid')
-            ->whereBetween('booking_date', [$startDate, $endDate])
-            ->with(['court.branch', 'user']);
+        $reportData = $this->reportService->getRevenueReport(
+            $request->user(),
+            (string) $startDate,
+            (string) $endDate,
+            $branchId
+        );
 
-        if ($branchId) {
-            $query->whereHas('court', fn($q) => $q->where('branch_id', $branchId));
-        }
-
-        $reports = $query->get();
-        $totalRevenue = $reports->sum('total_amount');
-        $branches = Branch::all();
-
-        return view('admin.reports.revenue', compact('reports', 'totalRevenue', 'branches', 'startDate', 'endDate', 'branchId'));
+        return view('admin.reports.revenue', [
+            'reports' => $reportData['reports'],
+            'totalRevenue' => $reportData['totalRevenue'],
+            'branches' => $reportData['branches'],
+            'startDate' => $reportData['startDate'],
+            'endDate' => $reportData['endDate'],
+            'branchId' => $reportData['selectedBranchId'],
+        ]);
     }
 }
