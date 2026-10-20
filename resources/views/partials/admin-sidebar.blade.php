@@ -37,6 +37,11 @@
                 <span>Cabang</span>
             </a>
 
+            <a href="{{ route('admin.sports.index') }}" class="nav-link {{ request()->routeIs('admin.sports.*') ? 'active' : '' }}">
+                <i class="bi bi-dribbble"></i>
+                <span>Jenis Olahraga</span>
+            </a>
+
             <a href="{{ route('admin.courts.index') }}" class="nav-link {{ request()->routeIs('admin.courts.*') ? 'active' : '' }}">
                 <i class="bi bi-trophy"></i>
                 <span>Lapangan</span>

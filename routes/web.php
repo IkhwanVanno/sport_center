@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\FacilitiesController;
 use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\PriceRuleController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SportController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\BookingController;
@@ -84,6 +85,7 @@ Route::middleware(['auth', 'role:operator|superadmin'])->prefix('operator')->nam
 Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('branches', BranchController::class);
+    Route::resource('sports', SportController::class);
     Route::resource('courts', CourtController::class);
     Route::resource('price-rules', PriceRuleController::class)->except(['show', 'edit', 'update']);
     Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
