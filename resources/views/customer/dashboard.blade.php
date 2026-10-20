@@ -3,65 +3,143 @@
 @section('title', 'Dashboard Pelanggan')
 
 @section('content')
-<div class="space-y-6">
+<div class="d-flex flex-column gap-4">
+
     <!-- Header Page & Action -->
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-800">Dashboard Pelanggan</h1>
-        <a href="{{ route('home') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition shadow-sm">
-            + Pesan Lapangan Baru
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+        <div>
+            <h1 class="h3 fw-extrabold text-dark mb-1">Dashboard Pelanggan</h1>
+            <p class="text-muted small mb-0">Selamat datang kembali, <strong>{{ Auth::user()->name }}</strong>! Kelola reservasi lapangan Anda di sini.</p>
+        </div>
+        <a href="{{ route('courts.index') }}" class="btn btn-emerald px-4 py-2.5 rounded-3 shadow-sm fw-bold small d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle"></i>
+            <span>Pesan Lapangan Baru</span>
         </a>
     </div>
 
     <!-- Quick Metric Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm text-gray-500 font-medium">Total Pemesanan Saya</p>
-            <p class="text-2xl font-bold text-indigo-600 mt-1">12 Transaksi</p>
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <div class="card card-custom p-4 h-100 border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Total Pemesanan</span>
+                    <span class="p-2 rounded-circle bg-indigo-subtle text-indigo"><i class="bi bi-calendar-check fs-5"></i></span>
+                </div>
+                <div class="display-6 fw-bold text-indigo mb-1">{{ $totalBookings ?? 0 }}</div>
+                <div class="text-muted small">Transaksi seumur hidup</div>
+            </div>
         </div>
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm text-gray-500 font-medium">Jadwal Main Mendatang</p>
-            <p class="text-2xl font-bold text-emerald-600 mt-1">1 Lapangan</p>
+
+        <div class="col-12 col-md-4">
+            <div class="card card-custom p-4 h-100 border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Jadwal Main Mendatang</span>
+                    <span class="p-2 rounded-circle bg-emerald-subtle text-emerald"><i class="bi bi-clock-history fs-5"></i></span>
+                </div>
+                <div class="display-6 fw-bold text-emerald mb-1">{{ $upcomingBookings ?? 0 }}</div>
+                <div class="text-muted small">Booking aktif terkonfirmasi</div>
+            </div>
         </div>
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm text-gray-500 font-medium">Menunggu Pembayaran</p>
-            <p class="text-2xl font-bold text-amber-500 mt-1">0 Transaksi</p>
+
+        <div class="col-12 col-md-4">
+            <div class="card card-custom p-4 h-100 border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Menunggu Pembayaran</span>
+                    <span class="p-2 rounded-circle bg-warning-subtle text-warning"><i class="bi bi-credit-card-2-front fs-5"></i></span>
+                </div>
+                <div class="display-6 fw-bold text-warning mb-1">{{ $pendingPayment ?? 0 }}</div>
+                <div class="text-muted small">Harus dibayar sebelum kedaluwarsa</div>
+            </div>
         </div>
     </div>
 
     <!-- Recent Bookings Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h2 class="font-bold text-gray-800 mb-4">Riwayat Pemesanan Saya</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-gray-600">
-                <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
+    <div class="card card-custom border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom border-light p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">Riwayat Pemesanan Terbaru</h5>
+                <p class="text-muted small mb-0">Daftar transaksi reservasi terakhir milik Anda</p>
+            </div>
+            <a href="{{ route('user.bookings.index') }}" class="btn btn-outline-secondary btn-sm fw-semibold rounded-pill px-3">
+                Lihat Semua &rarr;
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-custom mb-0">
+                <thead>
                     <tr>
-                        <th class="p-3">Kode Booking</th>
-                        <th class="p-3">Lapangan & Cabang</th>
-                        <th class="p-3">Tanggal & Jam Main</th>
-                        <th class="p-3">Total Biaya</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Aksi</th>
+                        <th>Kode Booking</th>
+                        <th>Lapangan & Cabang</th>
+                        <th>Tanggal & Jam Main</th>
+                        <th>Total Biaya</th>
+                        <th>Status</th>
+                        <th class="text-end">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
-                    <tr>
-                        <td class="p-3 font-semibold text-indigo-600">SPC-20261014-X89B</td>
-                        <td class="p-3">
-                            <div class="font-medium text-gray-800">Lapangan Futsal A (Sintetis)</div>
-                            <div class="text-xs text-gray-400">Cabang MERR Surabaya</div>
-                        </td>
-                        <td class="p-3">18 OKT 2026 (19:00 - 21:00)</td>
-                        <td class="p-3 font-semibold text-gray-800">Rp 300.000</td>
-                        <td class="p-3">
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">LUNAS</span>
-                        </td>
-                        <td class="p-3">
-                            <a href="#" class="text-xs font-semibold text-indigo-600 hover:underline">Detail E-Ticket</a>
-                        </td>
-                    </tr>
+                <tbody>
+                    @forelse($bookings ?? [] as $booking)
+                        <tr>
+                            <td>
+                                <a href="{{ route('user.bookings.show', $booking->booking_code) }}" class="fw-bold text-indigo text-decoration-none">
+                                    {{ $booking->booking_code }}
+                                </a>
+                                <div class="text-muted small" style="font-size: 0.72rem;">{{ $booking->created_at->format('d M Y, H:i') }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ $booking->court->name ?? 'Lapangan' }}</div>
+                                <div class="text-muted small">{{ $booking->court->branch->name ?? 'Sport Center' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d M Y') }}</div>
+                                <div class="text-muted small">
+                                    @if($booking->items->isNotEmpty())
+                                        {{ substr($booking->items->min('start_time'), 0, 5) }} - {{ substr($booking->items->max('end_time'), 0, 5) }} ({{ $booking->items->count() }} Jam)
+                                    @endif
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <x-badge-status :status="$booking->status" type="booking" />
+                                    <x-badge-status :status="$booking->payment_status" type="payment" />
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    @if($booking->payment_status === 'unpaid' && $booking->status === 'pending' && $booking->expired_at->isFuture())
+                                        <a href="{{ route('user.payments.checkout', $booking->booking_code) }}" class="btn btn-emerald btn-sm px-3 rounded-pill fw-semibold">
+                                            Bayar
+                                        </a>
+                                    @elseif($booking->payment_status === 'pending_verification')
+                                        <a href="{{ route('user.bookings.show', $booking->booking_code) }}" class="btn btn-outline-warning btn-sm px-3 rounded-pill fw-semibold">
+                                            Diproses
+                                        </a>
+                                    @else
+                                        <a href="{{ route('user.bookings.show', $booking->booking_code) }}" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-semibold">
+                                            E-Ticket
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-5 text-center text-muted">
+                                <div class="mb-2"><i class="bi bi-inbox fs-2"></i></div>
+                                <p class="mb-2 fw-semibold">Anda belum memiliki riwayat pemesanan.</p>
+                                <a href="{{ route('courts.index') }}" class="btn btn-emerald btn-sm px-3 py-1.5 rounded-pill">
+                                    Mulai Pesan Lapangan
+                                </a>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>
 @endsection

@@ -50,9 +50,13 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 Route::middleware(['auth', 'role:customer'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [CustomerDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [CustomerDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking:booking_code}', [BookingController::class, 'show'])->name('bookings.show');
     Route::get('/bookings/{booking:booking_code}/pay', [PaymentController::class, 'checkout'])->name('payments.checkout');
+    Route::get('/bookings/{booking:booking_code}/upload-proof', [PaymentController::class, 'uploadProofForm'])->name('payments.upload-proof-form');
     Route::post('/bookings/{booking:booking_code}/upload-proof', [PaymentController::class, 'uploadProof'])->name('payments.upload-proof');
 });
 
@@ -68,7 +72,9 @@ Route::middleware(['auth', 'role:operator|superadmin'])->prefix('operator')->nam
     Route::get('/dashboard', fn() => redirect()->route('operator.checkin.index'))->name('dashboard');
     Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
     Route::post('/checkin/verify', [CheckInController::class, 'verify'])->name('checkin.verify');
+    Route::get('/walk-in', [CheckInController::class, 'walkIn'])->name('walkin.index');
     Route::post('/walk-in-booking', [CheckInController::class, 'storeWalkIn'])->name('walkin.store');
+    Route::get('/schedule', [CheckInController::class, 'schedule'])->name('schedule.index');
 });
 
 // ==========================================

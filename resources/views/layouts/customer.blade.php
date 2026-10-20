@@ -1,45 +1,88 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard Pelanggan') - Sport Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-<body class="bg-gray-50 font-sans antialiased">
-    <div class="min-h-screen flex flex-col">
-        <!-- NAVBAR CLIENT -->
-        <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <a href="{{ route('home') }}" class="font-black text-xl text-emerald-600 tracking-tight">SPORT CENTER</a>
+@extends('layouts.app')
 
-                <div class="flex items-center gap-6">
-                    <a href="{{ route('home') }}" class="text-sm font-medium text-gray-600 hover:text-emerald-600">Sewa Lapangan</a>
-                    <a href="{{ route('user.dashboard') }}" class="text-sm font-medium {{ request()->routeIs('user.dashboard') ? 'text-emerald-600 font-bold' : 'text-gray-600 hover:text-emerald-600' }}">Booking Saya</a>
-                    
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-emerald-600 focus:outline-none">
+@section('body-class', 'd-flex flex-column min-vh-100 bg-light')
+
+@section('layout-content')
+    <!-- Customer Navbar -->
+    <header class="navbar navbar-expand-lg bg-white border-bottom border-light shadow-sm sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-black text-emerald fs-5 tracking-tight" href="{{ route('home') }}">
+                <span class="fs-4">⚽</span>
+                <span class="fw-bold tracking-wide">SPORT CENTER</span>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#customerNavbar" aria-controls="customerNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="customerNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-2">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold {{ request()->routeIs('courts.*') ? 'text-emerald fw-bold' : 'text-secondary' }}" href="{{ route('courts.index') }}">
+                            <i class="bi bi-search me-1"></i>Sewa Lapangan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold {{ request()->routeIs('user.dashboard') ? 'text-emerald fw-bold' : 'text-secondary' }}" href="{{ route('user.dashboard') }}">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold {{ request()->routeIs('user.bookings.*') ? 'text-emerald fw-bold' : 'text-secondary' }}" href="{{ route('user.bookings.index') }}">
+                            <i class="bi bi-receipt me-1"></i>Riwayat Booking
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-6 text-emerald"></i>
                             <span>{{ Auth::user()->name }}</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        
-                        <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50">
-                            <a href="#" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Profil Saya</a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50 font-semibold">Logout</button>
-                            </form>
-                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
+                            <li><h6 class="dropdown-header text-uppercase small text-muted">Akun Pelanggan</h6></li>
+                            <li>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{{ route('user.profile') }}">
+                                    <i class="bi bi-person-gear text-indigo"></i>
+                                    <span>Profil & Keamanan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{{ route('user.bookings.index') }}">
+                                    <i class="bi bi-ticket-perforated text-emerald"></i>
+                                    <span>Semua Booking</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 fw-semibold">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Keluar (Logout)</span>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- MAIN CONTENT -->
-        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            @include('components.alert')
             @yield('content')
-        </main>
-    </div>
-</body>
-</html>
+        </div>
+    </main>
+
+    <!-- Customer Footer -->
+    <footer class="bg-white border-top py-3 text-center text-muted small no-print">
+        <div class="container">
+            © {{ date('Y') }} <strong>Sport Center</strong>. Seluruh hak cipta dilindungi undang-undang.
+        </div>
+    </footer>
+@endsection

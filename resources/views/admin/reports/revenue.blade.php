@@ -1,65 +1,135 @@
 @extends('layouts.admin')
-@section('title', 'Laporan Pendapatan')
+
+@section('title', 'Laporan Omzet Pendapatan')
 
 @section('content')
-<div class="space-y-6">
-    <h1 class="text-xl font-bold text-gray-800">Laporan Pendapatan Transaksi</h1>
+<div class="d-flex flex-column gap-4">
 
-    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-        <form method="GET" action="{{ route('admin.reports.revenue') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Dari Tanggal</label>
-                <input type="date" name="start_date" value="{{ $startDate }}" class="mt-1 w-full p-2 border border-gray-300 rounded-lg text-sm">
+    <!-- Header & Action -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <div>
+            <h1 class="h3 fw-extrabold text-dark mb-1">Laporan Omzet Pendapatan</h1>
+            <p class="text-muted small mb-0">Rekapitulasi transaksi sewa lapangan yang berstatus lunas / terkonfirmasi.</p>
+        </div>
+
+        <button type="button" onclick="window.print()" class="btn btn-outline-dark btn-sm px-3 rounded-pill fw-semibold no-print d-flex align-items-center gap-1">
+            <i class="bi bi-printer"></i>
+            <span>Cetak / Ekspor Laporan</span>
+        </button>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card card-custom p-3 p-md-4 border-0 shadow-sm no-print">
+        <form method="GET" action="{{ route('admin.reports.revenue') }}" class="row g-3 align-items-end">
+            <div class="col-12 col-sm-6 col-md-3">
+                <label for="start_date" class="form-label small fw-semibold text-secondary">Dari Tanggal</label>
+                <input type="date" 
+                       id="start_date" 
+                       name="start_date" 
+                       value="{{ $startDate }}" 
+                       class="form-control form-control-sm">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Sampai Tanggal</label>
-                <input type="date" name="end_date" value="{{ $endDate }}" class="mt-1 w-full p-2 border border-gray-300 rounded-lg text-sm">
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <label for="end_date" class="form-label small fw-semibold text-secondary">Sampai Tanggal</label>
+                <input type="date" 
+                       id="end_date" 
+                       name="end_date" 
+                       value="{{ $endDate }}" 
+                       class="form-control form-control-sm">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Cabang</label>
-                <select name="branch_id" class="mt-1 w-full p-2 border border-gray-300 rounded-lg text-sm">
-                    <option value="">Semua Cabang</option>
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <label for="branch_id" class="form-label small fw-semibold text-secondary">Filter Cabang</label>
+                <select name="branch_id" id="branch_id" class="form-select form-select-sm">
+                    <option value="">Semua Cabang Fasilitas</option>
                     @foreach($branches as $b)
-                    <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
+                        <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>
+                            {{ $b->name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="bg-indigo-600 text-white p-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700">Filter Laporan</button>
+
+            <div class="col-12 col-sm-6 col-md-2">
+                <button type="submit" class="btn btn-indigo btn-sm w-100 fw-semibold py-2">
+                    <i class="bi bi-filter me-1"></i>Filter
+                </button>
+            </div>
         </form>
     </div>
 
-    <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl">
-        <p class="text-sm font-medium text-emerald-800">Total Omzet Terverifikasi (Lunas)</p>
-        <p class="text-3xl font-extrabold text-emerald-600 mt-1">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+    <!-- Revenue Summary Banner -->
+    <div class="card card-custom border-0 shadow-sm p-4 bg-emerald-subtle border-emerald-subtle">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <div>
+                <span class="text-uppercase fw-bold text-success small" style="font-size: 0.75rem;">Total Omzet Terverifikasi (Lunas)</span>
+                <div class="display-6 fw-extrabold text-emerald fw-bold mt-1">
+                    Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+                </div>
+            </div>
+            <div class="text-sm-end text-muted small">
+                Periode: <strong>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</strong> s/d <strong>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</strong>
+                <div class="text-secondary">{{ count($reports) }} Transaksi Berhasil</div>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table class="w-full text-left text-sm text-gray-600">
-            <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
-                <tr>
-                    <th class="p-4">Kode Booking</th>
-                    <th class="p-4">Tanggal Main</th>
-                    <th class="p-4">Pelanggan</th>
-                    <th class="p-4">Lapangan / Cabang</th>
-                    <th class="p-4 text-right">Nominal</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse($reports as $report)
-                <tr>
-                    <td class="p-4 font-semibold text-indigo-600">{{ $report->booking_code }}</td>
-                    <td class="p-4">{{ $report->booking_date }}</td>
-                    <td class="p-4">{{ $report->user->name }}</td>
-                    <td class="p-4">{{ $report->court->name }} ({{ $report->court->branch->name }})</td>
-                    <td class="p-4 text-right font-bold text-gray-800">Rp {{ number_format($report->total_amount, 0, ',', '.') }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="p-4 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Revenue Data Table -->
+    <div class="card card-custom border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Kode Booking</th>
+                        <th>Tanggal Main</th>
+                        <th>Pelanggan</th>
+                        <th>Lapangan / Cabang</th>
+                        <th class="text-end">Nominal Pembayaran</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($reports as $report)
+                        <tr>
+                            <td>
+                                <a href="{{ route('admin.orders.show', $report) }}" class="fw-bold text-indigo text-decoration-none font-monospace">
+                                    {{ $report->booking_code }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="text-dark">{{ \Carbon\Carbon::parse($report->booking_date)->translatedFormat('d M Y') }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ $report->user->name ?? 'User' }}</div>
+                                <div class="text-muted small" style="font-size: 0.72rem;">{{ $report->user->phone_number ?? $report->user->email }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ $report->court->name ?? 'Lapangan' }}</div>
+                                <div class="text-muted small">{{ $report->court->branch->name ?? 'Cabang' }}</div>
+                            </td>
+                            <td class="text-end">
+                                <strong class="text-dark">Rp {{ number_format($report->total_amount, 0, ',', '.') }}</strong>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-5 text-center text-muted">
+                                Tidak ada data transaksi lunas pada periode tanggal yang dipilih.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                @if(count($reports) > 0)
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td colspan="4" class="text-end pe-3">Total Pendapatan Terhitung:</td>
+                            <td class="text-end text-emerald fs-6">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                @endif
+            </table>
+        </div>
     </div>
+
 </div>
 @endsection

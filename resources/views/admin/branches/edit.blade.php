@@ -1,32 +1,92 @@
 @extends('layouts.admin')
-@section('title', 'Edit Cabang')
+
+@section('title', 'Edit Cabang: ' . $branch->name)
 
 @section('content')
-<div class="max-w-2xl bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-    <h1 class="text-xl font-bold text-gray-800 mb-6">Edit Cabang</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
 
-    <form action="{{ route('admin.branches.update', $branch) }}" method="POST" class="space-y-4">
-        @csrf @method('PUT')
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Nama Cabang</label>
-            <input type="text" name="name" value="{{ $branch->name }}" required class="mt-1 w-full p-2.5 border border-gray-300 rounded-lg text-sm">
+        <!-- Breadcrumb & Back -->
+        <div class="mb-3">
+            <a href="{{ route('admin.branches.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i>Kembali ke Daftar Cabang
+            </a>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Alamat Lengkap</label>
-            <textarea name="address" required class="mt-1 w-full p-2.5 border border-gray-300 rounded-lg text-sm" rows="3">{{ $branch->address }}</textarea>
+
+        <div class="card card-custom p-4 border-0 shadow-sm">
+            <h4 class="fw-bold text-dark border-bottom pb-3 mb-4">Edit Cabang: {{ $branch->name }}</h4>
+
+            <form action="{{ route('admin.branches.update', $branch) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <!-- Nama Cabang -->
+                <div class="mb-3">
+                    <label for="name" class="form-label small fw-semibold text-secondary">Nama Cabang <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="{{ old('name', $branch->name) }}" 
+                           class="form-control @error('name') is-invalid @enderror" 
+                           required 
+                           autofocus>
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Alamat Lengkap -->
+                <div class="mb-3">
+                    <label for="address" class="form-label small fw-semibold text-secondary">Alamat Lengkap <span class="text-danger">*</span></label>
+                    <textarea id="address" 
+                              name="address" 
+                              rows="3" 
+                              class="form-control @error('address') is-invalid @enderror" 
+                              required>{{ old('address', $branch->address) }}</textarea>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Nomor Telepon -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label small fw-semibold text-secondary">Nomor Telepon Kontak <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           id="phone" 
+                           name="phone" 
+                           value="{{ old('phone', $branch->phone) }}" 
+                           class="form-control @error('phone') is-invalid @enderror" 
+                           required>
+                    @error('phone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Status Keaktifan -->
+                <div class="mb-4 form-check form-switch">
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" 
+                           class="form-check-input" 
+                           id="is_active" 
+                           name="is_active" 
+                           value="1" 
+                           {{ old('is_active', $branch->is_active) ? 'checked' : '' }}>
+                    <label class="form-check-label small fw-semibold text-dark" for="is_active">
+                        Cabang Aktif Beroperasi
+                    </label>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="{{ route('admin.branches.index') }}" class="btn btn-light border px-4 py-2 rounded-3 fw-semibold">
+                        Batal
+                    </a>
+                    <button type="submit" class="btn btn-indigo px-4 py-2 rounded-3 fw-bold shadow-sm">
+                        Perbarui Cabang
+                    </button>
+                </div>
+            </form>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
-            <input type="text" name="phone" value="{{ $branch->phone }}" required class="mt-1 w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-        </div>
-        <div class="flex items-center gap-2">
-            <input type="checkbox" name="is_active" value="1" id="is_active" {{ $branch->is_active ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600">
-            <label for="is_active" class="text-sm font-medium text-gray-700">Cabang Aktif Operasional</label>
-        </div>
-        <div class="pt-4 flex gap-3">
-            <button type="submit" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700">Perbarui</button>
-            <a href="{{ route('admin.branches.index') }}" class="bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold">Batal</a>
-        </div>
-    </form>
+
+    </div>
 </div>
 @endsection

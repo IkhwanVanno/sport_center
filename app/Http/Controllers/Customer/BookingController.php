@@ -15,6 +15,28 @@ use Illuminate\View\View;
 class BookingController extends Controller
 {
     /**
+     * Tampilkan riwayat booking milik pelanggan.
+     */
+    public function index(Request $request): View
+    {
+        $query = $request->user()
+            ->bookings()
+            ->with(['court.branch', 'court.sport', 'items', 'payments']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        $bookings = $query->latest()->paginate(10)->withQueryString();
+
+        return view('customer.bookings.index', compact('bookings'));
+    }
+
+    /**
      * Simpan booking baru dari pelanggan.
      */
     public function store(StoreBookingRequest $request, BookingService $bookingService): RedirectResponse

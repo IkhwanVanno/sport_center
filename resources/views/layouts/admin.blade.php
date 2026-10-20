@@ -1,45 +1,74 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Dashboard') - Sport Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
+@section('body-class', 'overflow-x-hidden bg-light')
 
-<body class="bg-gray-100 font-sans antialiased" x-data="{ sidebarOpen: true }">
-    <div class="flex h-screen overflow-hidden">
-        @include('partials.admin-sidebar')
+@section('layout-content')
+<div class="d-flex min-vh-100">
+    <!-- Admin Sidebar Partial -->
+    @include('partials.admin-sidebar')
 
-        <div class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200">
-                <button @click="sidebarOpen = !sidebarOpen" class="text-gray-600 focus:outline-none hover:text-gray-900">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-                <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700">Halo, <strong>{{ Auth::user()->name ?? 'Admin' }}</strong></span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-sm text-red-600 font-semibold hover:underline">Logout</button>
-                    </form>
-                </div>
-            </header>
-
-            <main class="p-6">
-                @if(session('success'))
-                <div class="mb-4 p-4 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-lg text-sm font-medium">
-                    {{ session('success') }}
-                </div>
+    <!-- Admin Main Content Area -->
+    <div class="flex-grow-1 d-flex flex-column min-vh-100 overflow-y-auto">
+        <!-- Admin Topbar -->
+        <header class="bg-white border-bottom border-light shadow-sm py-3 px-4 d-flex justify-content-between align-items-center sticky-top">
+            <div class="d-flex align-items-center gap-3">
+                <span class="fs-5 fw-bold text-dark">
+                    @yield('title', 'Admin Panel')
+                </span>
+                @if(Auth::user()->branch)
+                    <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle small">
+                        <i class="bi bi-geo-alt-fill me-1"></i>{{ Auth::user()->branch->name }}
+                    </span>
                 @endif
+            </div>
 
-                @yield('content')
-            </main>
-        </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small d-none d-md-inline">
+                    Halo, <strong class="text-dark">{{ Auth::user()->name ?? 'Admin' }}</strong>
+                </span>
+
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border dropdown-toggle rounded-pill px-3 py-1.5 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-shield-lock-fill text-indigo me-1"></i>
+                        <span>{{ strtoupper(Auth::user()->role ?? 'ADMIN') }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
+                        <li>
+                            <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{{ route('home') }}" target="_blank">
+                                <i class="bi bi-box-arrow-up-right text-muted"></i>
+                                <span>Lihat Website Publik</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2 py-2 fw-semibold">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Body Content -->
+        <main class="flex-grow-1 p-3 p-md-4">
+            @include('components.alert')
+            @yield('content')
+        </main>
+
+        <!-- Admin Footer -->
+        <footer class="bg-white border-top py-2 px-4 text-muted small text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div>
+                © {{ date('Y') }} <strong>Sport Center Management System</strong>
+            </div>
+            <div>
+                Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
+            </div>
+        </footer>
     </div>
-</body>
-
-</html>
+</div>
+@endsection

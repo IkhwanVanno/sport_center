@@ -3,171 +3,223 @@
 @section('title', 'Sewa Lapangan Futsal, Badminton & Basket Online')
 
 @section('content')
-<div class="space-y-16 py-8">
+<div class="py-4 d-flex flex-column gap-5">
 
     <!-- Hero Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-slate-900 rounded-3xl p-8 sm:p-12 lg:p-16 text-white relative overflow-hidden shadow-xl">
-            <div class="relative z-10 max-w-2xl space-y-6">
-                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1.5 rounded-full font-bold uppercase tracking-wider">
-                    Sistem Reservasi Online Real-Time
+    <section class="container">
+        <div class="bg-slate-900 rounded-5 p-4 p-sm-5 text-white position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+            <div class="position-relative z-1 col-lg-8 py-3 py-lg-4">
+                <span class="badge bg-emerald-subtle text-emerald border border-emerald-subtle px-3 py-2 rounded-pill fw-bold text-uppercase mb-3" style="font-size: 0.75rem;">
+                    <i class="bi bi-lightning-charge-fill me-1"></i>Sistem Reservasi Online Real-Time
                 </span>
-                <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                
+                <h1 class="display-5 fw-extrabold text-white tracking-tight lh-tight mb-3">
                     Main Olahraga Tanpa Ribet Antre Slot
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                    Cek jadwal ketersediaan lapangan futsal, badminton, basket, dan tenis secara instan. Pesan per jam dan bayar otomatis dari mana saja.
+                
+                <p class="text-slate-300 fs-6 lh-base mb-4 text-secondary col-md-10">
+                    Cek jadwal ketersediaan lapangan futsal, badminton, basket, dan tenis secara instan. Pesan per jam dan bayar otomatis dari mana saja dengan jaminan <em>Zero Double Booking</em>.
                 </p>
-                <div class="pt-2 flex flex-wrap gap-4 items-center">
-                    <a href="#katalog" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition shadow-lg shadow-emerald-600/30">
-                        Cari Lapangan Sekarang
+
+                <div class="d-flex flex-wrap gap-3 align-items-center pt-2">
+                    <a href="{{ route('courts.index') }}" class="btn btn-emerald btn-lg px-4 py-3 rounded-4 shadow-sm fw-bold fs-6 d-flex align-items-center gap-2">
+                        <i class="bi bi-search"></i>
+                        <span>Cari Lapangan Sekarang</span>
                     </a>
                     @guest
-                        <a href="{{ route('register') }}" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl text-sm border border-white/20 transition">
+                        <a href="{{ route('register') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-4 fw-semibold fs-6">
                             Daftar Akun Gratis
+                        </a>
+                    @else
+                        <a href="{{ route('user.dashboard') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-4 fw-semibold fs-6">
+                            Dashboard Saya &rarr;
                         </a>
                     @endguest
                 </div>
             </div>
-            
-            <!-- Hiasan Background / Visual Pattern -->
-            <div class="absolute -right-10 -bottom-10 opacity-10 font-black text-[18rem] select-none pointer-events-none">
+
+            <!-- Background Visual Emoji -->
+            <div class="position-absolute end-0 bottom-0 text-white opacity-10 user-select-none pe-none d-none d-md-block" style="font-size: 16rem; line-height: 1; transform: translate(15%, 15%);">
                 ⚽
             </div>
         </div>
     </section>
 
     <!-- Quick Stats Bar -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center">
-                <p class="text-2xl sm:text-3xl font-black text-indigo-600">10+</p>
-                <p class="text-xs text-gray-500 font-medium mt-1">Cabang Fasilitas</p>
+    <section class="container">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="card card-custom p-4 text-center h-100">
+                    <div class="display-6 fw-bold text-indigo mb-1">10+</div>
+                    <div class="text-muted small fw-medium">Cabang Fasilitas</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center">
-                <p class="text-2xl sm:text-3xl font-black text-emerald-600">40+</p>
-                <p class="text-xs text-gray-500 font-medium mt-1">Lapangan Fisik</p>
+            <div class="col-6 col-md-3">
+                <div class="card card-custom p-4 text-center h-100">
+                    <div class="display-6 fw-bold text-emerald mb-1">40+</div>
+                    <div class="text-muted small fw-medium">Lapangan Fisik</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center">
-                <p class="text-2xl sm:text-3xl font-black text-amber-500">100%</p>
-                <p class="text-xs text-gray-500 font-medium mt-1">Bebas Double Booking</p>
+            <div class="col-6 col-md-3">
+                <div class="card card-custom p-4 text-center h-100">
+                    <div class="display-6 fw-bold text-warning mb-1">100%</div>
+                    <div class="text-muted small fw-medium">Bebas Double Booking</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center">
-                <p class="text-2xl sm:text-3xl font-black text-slate-700">15rb+</p>
-                <p class="text-xs text-gray-500 font-medium mt-1">Pengguna Terdaftar</p>
+            <div class="col-6 col-md-3">
+                <div class="card card-custom p-4 text-center h-100">
+                    <div class="display-6 fw-bold text-dark mb-1">15rb+</div>
+                    <div class="text-muted small fw-medium">Pengguna Terdaftar</div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Katalog Lapangan Utama -->
-    <section id="katalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div class="flex justify-between items-end">
+    <!-- Popular Courts Section -->
+    <section id="katalog" class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Lapangan Populer</h2>
-                <p class="text-xs text-gray-500 mt-1">Pilih lapangan favorit dan periksa slot waktu yang tersedia</p>
+                <span class="badge bg-indigo-subtle text-indigo px-3 py-1.5 rounded-pill fw-bold text-uppercase small mb-2">Pilihan Populer</span>
+                <h2 class="h3 fw-bold text-dark mb-1">Lapangan Pilihan Olahraga</h2>
+                <p class="text-muted small mb-0">Pilih lapangan favorit dan periksa slot waktu yang tersedia secara langsung</p>
             </div>
-            <a href="#" class="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                Lihat Selengkapnya &rarr;
+            <a href="{{ route('courts.index') }}" class="btn btn-link text-indigo text-decoration-none fw-bold small d-flex align-items-center gap-1">
+                <span>Lihat Semua Lapangan</span>
+                <i class="bi bi-arrow-right"></i>
             </a>
         </div>
 
-        <!-- Grid Lapangan Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            <!-- Sample Card 1 -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden space-y-4 hover:shadow-md transition">
-                <div class="h-44 bg-slate-200 relative">
-                    <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80" alt="Lapangan Futsal A" class="w-full h-full object-cover">
-                    <span class="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">
-                        Futsal
-                    </span>
+        <div class="row g-4">
+            @forelse($courts ?? [] as $court)
+                <div class="col-12 col-md-6 col-lg-4">
+                    <x-court-card :court="$court" />
                 </div>
-                <div class="p-5 space-y-3">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base">Lapangan Futsal A (Rumput Sintetis)</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Cabang MERR Surabaya</p>
-                    </div>
-                    <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] text-gray-400 uppercase font-semibold block">Harga Sewa</span>
-                            <span class="text-base font-bold text-emerald-600">Rp 120.000</span>
-                            <span class="text-xs text-gray-400">/jam</span>
-                        </div>
-                        <a href="{{ route('login') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-                            Pesan Slot
-                        </a>
+            @empty
+                <div class="col-12">
+                    <div class="card card-custom text-center p-5">
+                        <i class="bi bi-emoji-neutral fs-1 text-muted mb-2"></i>
+                        <p class="text-muted fw-semibold mb-0">Belum ada data lapangan yang tersedia saat ini.</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Sample Card 2 -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden space-y-4 hover:shadow-md transition">
-                <div class="h-44 bg-slate-200 relative">
-                    <img src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=600&q=80" alt="Lapangan Badminton 1" class="w-full h-full object-cover">
-                    <span class="absolute top-3 right-3 bg-indigo-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">
-                        Badminton
-                    </span>
-                </div>
-                <div class="p-5 space-y-3">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base">Lapangan Badminton 1 (Vinyil BWF)</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Cabang MERR Surabaya</p>
-                    </div>
-                    <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] text-gray-400 uppercase font-semibold block">Harga Sewa</span>
-                            <span class="text-base font-bold text-emerald-600">Rp 50.000</span>
-                            <span class="text-xs text-gray-400">/jam</span>
-                        </div>
-                        <a href="{{ route('login') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-                            Pesan Slot
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sample Card 3 -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden space-y-4 hover:shadow-md transition">
-                <div class="h-44 bg-slate-200 relative">
-                    <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80" alt="Lapangan Basket" class="w-full h-full object-cover">
-                    <span class="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">
-                        Basket
-                    </span>
-                </div>
-                <div class="p-5 space-y-3">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base">Lapangan Basket Outdoor A</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Cabang Barat Surabaya</p>
-                    </div>
-                    <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] text-gray-400 uppercase font-semibold block">Harga Sewa</span>
-                            <span class="text-base font-bold text-emerald-600">Rp 100.000</span>
-                            <span class="text-xs text-gray-400">/jam</span>
-                        </div>
-                        <a href="{{ route('login') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-                            Pesan Slot
-                        </a>
-                    </div>
-                </div>
-            </div>
-
+            @endforelse
         </div>
     </section>
 
-    <!-- Banner Call-to-Action Registrasi (Khusus Guest) -->
-    @guest
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="space-y-2 text-center md:text-left">
-                <h3 class="text-xl font-bold text-gray-800">Belum Punya Akun Sport Center?</h3>
-                <p class="text-xs text-gray-500">Daftarkan diri Anda sekarang untuk kemudahan pemesanan slot dan riwayat transaksi.</p>
+    <!-- Cara Sewa 4 Langkah -->
+    <section id="cara-sewa" class="container py-3">
+        <div class="card card-custom p-4 p-md-5 border-0 shadow-sm" style="background-color: #f1f5f9;">
+            <div class="text-center max-w-2xl mx-auto mb-5">
+                <span class="badge bg-emerald-subtle text-emerald px-3 py-1.5 rounded-pill fw-bold text-uppercase small mb-2">Mudah & Cepat</span>
+                <h3 class="fw-bold text-dark mb-2">Cara Sewa Lapangan di Sport Center</h3>
+                <p class="text-muted small mb-0">Pesan slot lapangan hanya dalam 4 tahapan ringkas tanpa harus menelepon admin</p>
             </div>
-            <div class="flex gap-3">
-                <a href="{{ route('register') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-5 py-3 rounded-lg transition shadow-sm">
+
+            <div class="row g-4">
+                <div class="col-12 col-md-3">
+                    <div class="card card-custom p-4 text-center h-100 bg-white">
+                        <div class="rounded-circle bg-emerald-subtle text-emerald fw-bold mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                            1
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">Pilih Lapangan</h6>
+                        <p class="text-muted small mb-0">Tentukan cabang terdekat, jenis olahraga, dan fasilitas yang diinginkan.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="card card-custom p-4 text-center h-100 bg-white">
+                        <div class="rounded-circle bg-indigo-subtle text-indigo fw-bold mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                            2
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">Pilih Jam & Slot</h6>
+                        <p class="text-muted small mb-0">Pilih tanggal dan slot jam sewa yang berstatus hijau (tersedia).</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="card card-custom p-4 text-center h-100 bg-white">
+                        <div class="rounded-circle bg-warning-subtle text-warning fw-bold mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                            3
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">Bayar Instan</h6>
+                        <p class="text-muted small mb-0">Selesaikan tagihan via QRIS otomatis atau transfer bank dalam 15 menit.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="card card-custom p-4 text-center h-100 bg-white">
+                        <div class="rounded-circle bg-primary-subtle text-primary fw-bold mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                            4
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">Check-In QR</h6>
+                        <p class="text-muted small mb-0">Bawa e-ticket smartphone ke lokasi dan scan di kasir sebelum bermain.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="container py-2">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark mb-1">Pertanyaan yang Sering Diajukan (FAQ)</h3>
+            <p class="text-muted small">Informasi umum mengenai pemesanan dan kebijakan pembatalan</p>
+        </div>
+
+        <div class="accordion card-custom overflow-hidden border-0 shadow-sm" id="accordionFaq">
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header" id="faqOne">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Bagaimana sistem mencegah terjadinya double booking?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#accordionFaq">
+                    <div class="accordion-body text-secondary small">
+                        Sport Center menggunakan teknologi <em>Pessimistic Locking</em> di tingkat basis data. Saat seorang pelanggan menekan tombol booking, slot tersebut dikunci seketika dalam transaksi database sehingga pengguna lain tidak dapat memesan jam yang sama.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 border-bottom">
+                <h2 class="accordion-header" id="faqTwo">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Berapa batas waktu untuk menyelesaikan pembayaran?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#accordionFaq">
+                    <div class="accordion-body text-secondary small">
+                        Batas waktu pembayaran adalah 15 menit sejak kode booking terbentuk. Jika dalam 15 menit pembayaran belum diselesaikan atau bukti transfer belum diunggah, sistem otomatis membatalkan pemesanan dan mengembalikan slot tersebut ke status tersedia.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header" id="faqThree">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Apakah saya bisa memesan langsung di lokasi tanpa aplikasi?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#accordionFaq">
+                    <div class="accordion-body text-secondary small">
+                        Bisa! Operator kasir di setiap cabang menyediakan modul <em>Walk-In Booking</em> untuk melayani pembayaran langsung secara tunai untuk slot jam yang masih tersedia hari itu.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guest Banner CTA -->
+    @guest
+    <section class="container pb-4">
+        <div class="bg-indigo-subtle border border-indigo-subtle rounded-5 p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-4">
+            <div class="text-center text-md-start">
+                <h4 class="fw-bold text-dark mb-1">Belum Punya Akun Sport Center?</h4>
+                <p class="text-muted small mb-0">Daftarkan akun sekarang untuk kemudahan reservasi slot, cetak e-ticket QR, dan melihat riwayat pemesanan Anda.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('register') }}" class="btn btn-indigo px-4 py-2.5 rounded-3 fw-bold small text-nowrap">
                     Buat Akun Baru
                 </a>
-                <a href="{{ route('login') }}" class="bg-white hover:bg-gray-50 text-gray-700 font-semibold text-xs px-5 py-3 rounded-lg border border-gray-200 transition">
+                <a href="{{ route('login') }}" class="btn btn-white bg-white border px-4 py-2.5 rounded-3 fw-semibold small text-nowrap">
                     Masuk
                 </a>
             </div>

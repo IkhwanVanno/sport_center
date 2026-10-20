@@ -18,7 +18,13 @@ class CatalogController extends Controller
      */
     public function index(Request $request): View
     {
-        return view('public.home');
+        $courts = Court::query()
+            ->with(['branch', 'sport', 'facilities'])
+            ->where('is_active', true)
+            ->take(6)
+            ->get();
+
+        return view('public.home', compact('courts'));
     }
 
     /**
