@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\PriceRuleController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SportController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\BookingController;
@@ -63,7 +64,7 @@ Route::middleware(['auth', 'role:customer'])->prefix('user')->name('user.')->gro
 });
 
 // Fallback alias jika ada komponen yang memanggil customer.dashboard
-Route::get('/customer/dashboard', fn() => redirect()->route('user.dashboard'))
+Route::get('/customer/dashboard', fn () => redirect()->route('user.dashboard'))
     ->middleware(['auth', 'role:customer'])
     ->name('customer.dashboard');
 
@@ -71,7 +72,7 @@ Route::get('/customer/dashboard', fn() => redirect()->route('user.dashboard'))
 // 5. OPERATOR ROUTES (Kasir / Staff Lapangan)
 // ==========================================
 Route::middleware(['auth', 'role:operator|superadmin'])->prefix('operator')->name('operator.')->group(function () {
-    Route::get('/dashboard', fn() => redirect()->route('operator.checkin.index'))->name('dashboard');
+    Route::get('/dashboard', fn () => redirect()->route('operator.checkin.index'))->name('dashboard');
     Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
     Route::post('/checkin/verify', [CheckInController::class, 'verify'])->name('checkin.verify');
     Route::get('/walk-in', [CheckInController::class, 'walkIn'])->name('walkin.index');
@@ -86,9 +87,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // 6.1 Shared Routes (Superadmin & Admin Cabang Terisolasi)
     Route::middleware(['auth', 'role:admin|superadmin', 'admin.branch'])->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('courts', CourtController::class);
+        Route::resource('courts', CourtController::class)->except(['show']);
         Route::resource('price-rules', PriceRuleController::class)->except(['show', 'edit', 'update']);
-        Route::resource('facilities', FacilitiesController::class);
+        Route::resource('facilities', FacilitiesController::class)->except(['show']);
         Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
         Route::get('/orders/{booking}', [OrderManagementController::class, 'show'])->name('orders.show');
         Route::post('/orders/{booking}/confirm-payment', [OrderManagementController::class, 'confirmPayment'])->name('orders.confirm-payment');
@@ -97,14 +98,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // 6.2 Superadmin Only Routes (Akses Global Seluruh Cabang & Master Data Kunci)
     Route::middleware(['auth', 'role:superadmin'])->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::post('/users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
-        Route::resource('branches', BranchController::class);
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::resource('branches', BranchController::class)->except(['show']);
         Route::resource('sports', SportController::class);
     });
 });
-
-// ==========================================
-// 7. PAYMENT GATEWAY WEBHOOK (Bypass CSRF)
-// ==========================================
-Route::post('/payments/midtrans-notification', [PaymentController::class, 'handleWebhook'])->name('payments.webhook');
