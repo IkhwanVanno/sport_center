@@ -104,3 +104,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('sports', SportController::class);
     });
 });
+
+// ==========================================
+// 7. PAYMENT GATEWAY WEBHOOK (belum dipakai, pembayaran masih manual)
+// ==========================================
+Route::post('/payments/midtrans-notification', [PaymentController::class, 'handleWebhook'])->name('payments.webhook');

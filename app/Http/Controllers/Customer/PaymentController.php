@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payment;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -82,5 +83,46 @@ class PaymentController extends Controller
 
         return redirect()->route('user.bookings.show', $booking->booking_code)
             ->with('success', 'Bukti transfer berhasil diunggah! Mohon menunggu verifikasi dari admin cabang.');
+    }
+
+    /**
+     * Webhook notification dari Payment Gateway (contoh Midtrans / QRIS).
+     *
+     * Belum dipakai karena pembayaran masih manual, disimpan untuk persiapan
+     * kalau nanti mau diaktifkan kembali.
+     */
+    public function handleWebhook(Request $request): JsonResponse
+    {
+        $payload = $request->all();
+        $orderId = $payload['order_id'] ?? null;
+        $transactionStatus = $payload['transaction_status'] ?? null;
+
+        if (! $orderId) {
+            return response()->json(['message' => 'Invalid payload'], 400);
+        }
+
+        $booking = Booking::where('booking_code', $orderId)->first();
+        if (! $booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        if (in_array($transactionStatus, ['capture', 'settlement'])) {
+            $booking->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+            ]);
+
+            Payment::updateOrCreate(
+                ['booking_id' => $booking->id],
+                [
+                    'payment_method' => 'qris',
+                    'amount' => $booking->total_amount,
+                    'status' => 'success',
+                    'paid_at' => now(),
+                ]
+            );
+        }
+
+        return response()->json(['message' => 'Webhook processed successfully']);
     }
 }
