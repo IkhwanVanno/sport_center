@@ -17,39 +17,62 @@ use Illuminate\Support\Str;
 class CourtService
 {
     /**
-     * Mengambil daftar lapangan dengan filtering hak akses (Scoping Cabang).
+     * Mengambil daftar lapangan dengan filtering hak akses.
      */
-    public function listCourts(User $user, ?int $branchId = null, ?int $sportId = null, int $perPage = 10): LengthAwarePaginator
-    {
-        $query = Court::with(['branch', 'sport', 'facilities'])
+    public function listCourts(
+        User $user,
+        ?int $branchId = null,
+        ?int $sportId = null,
+        int $perPage = 10,
+        ?string $category = null,
+        ?int $capacity = null
+    ): LengthAwarePaginator {
+        $query = Court::query()
+            ->with(['branch', 'sport', 'facilities'])
             ->forUser($user);
 
-        // Jika Superadmin memilih filter cabang spesifik
+        // Filter cabang hanya untuk Superadmin.
         if ($user->isSuperAdmin() && $branchId) {
             $query->forBranch($branchId);
         }
 
+        // Filter jenis olahraga.
         if ($sportId) {
             $query->where('sport_id', $sportId);
         }
 
-        return $query->latest('id')->paginate($perPage);
+        // Filter kategori.
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        // Filter kapasitas minimal.
+        if ($capacity !== null) {
+            $query->where('capacity', '>=', $capacity);
+        }
+
+        return $query
+            ->latest('id')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**
-     * Mengambil daftar cabang untuk opsi form create/edit.
+     * Mengambil opsi cabang.
      */
     public function getBranchOptions(User $user): Collection
     {
         if ($user->isSuperAdmin()) {
-            return Branch::where('is_active', true)->orderBy('name')->get();
+            return Branch::where('is_active', true)
+                ->orderBy('name')
+                ->get();
         }
 
         return Branch::where('id', $user->branch_id)->get();
     }
 
     /**
-     * Mengambil seluruh opsi jenis olahraga.
+     * Mengambil opsi olahraga.
      */
     public function getSportOptions(): Collection
     {
@@ -57,7 +80,7 @@ class CourtService
     }
 
     /**
-     * Mengambil seluruh opsi fasilitas olahraga.
+     * Mengambil opsi fasilitas.
      */
     public function getFacilityOptions(): Collection
     {
@@ -65,23 +88,40 @@ class CourtService
     }
 
     /**
-     * Menyimpan data lapangan baru secara aman dengan transaksi database.
+     * Mengambil opsi kategori lapangan.
+     */
+    public function getCategoryOptions(): Collection
+    {
+        return Court::query()
+            ->whereNotNull('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+    }
+
+    /**
+     * Menyimpan lapangan baru.
      */
     public function storeCourt(User $user, array $data): Court
     {
         return DB::transaction(function () use ($user, $data): Court {
-            // Isolasi wewenang: Admin Cabang otomatis di-lock ke branch_id miliknya
+            // Admin cabang tidak boleh menentukan cabang lain.
             if ($user->isAdmin()) {
                 $data['branch_id'] = $user->branch_id;
             }
 
-            $data['slug'] = Str::slug($data['name']) . '-' . Str::lower(Str::random(5));
+            $data['slug'] = Str::slug($data['name'])
+                . '-'
+                . Str::lower(Str::random(5));
+
             $data['is_active'] = $data['is_active'] ?? true;
 
             $facilities = $data['facilities'] ?? [];
+
             unset($data['facilities']);
 
             $court = Court::create($data);
+
             $court->facilities()->sync($facilities);
 
             return $court;
@@ -89,24 +129,34 @@ class CourtService
     }
 
     /**
-     * Memperbarui data lapangan secara aman.
+     * Memperbarui lapangan.
      */
-    public function updateCourt(User $user, Court $court, array $data): Court
-    {
+    public function updateCourt(
+        User $user,
+        Court $court,
+        array $data
+    ): Court {
         return DB::transaction(function () use ($user, $court, $data): Court {
-            // Isolasi wewenang: Admin Cabang tidak dapat memindahkan lapangan ke cabang lain
+            // Admin cabang tetap terkunci pada cabangnya sendiri.
             if ($user->isAdmin()) {
                 $data['branch_id'] = $user->branch_id;
             }
 
-            if (isset($data['name']) && $data['name'] !== $court->name) {
-                $data['slug'] = Str::slug($data['name']) . '-' . Str::lower(Str::random(5));
+            if (
+                isset($data['name'])
+                && $data['name'] !== $court->name
+            ) {
+                $data['slug'] = Str::slug($data['name'])
+                    . '-'
+                    . Str::lower(Str::random(5));
             }
 
             $facilities = $data['facilities'] ?? [];
+
             unset($data['facilities']);
 
             $court->update($data);
+
             $court->facilities()->sync($facilities);
 
             return $court;
@@ -114,12 +164,13 @@ class CourtService
     }
 
     /**
-     * Menghapus lapangan beserta relasi fasilitasnya.
+     * Menghapus lapangan beserta relasi fasilitas.
      */
     public function deleteCourt(Court $court): void
     {
         DB::transaction(function () use ($court): void {
             $court->facilities()->detach();
+
             $court->delete();
         });
     }
