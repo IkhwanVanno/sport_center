@@ -182,7 +182,9 @@
         @yield('layout-content')
     @else
         <main class="py-4 my-auto d-flex flex-column justify-content-center min-vh-100">
-            @yield('content')
+            <div class="container">
+                @yield('content')
+            </div>
         </main>
     @endif
 
