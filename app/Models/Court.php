@@ -17,6 +17,8 @@ class Court extends Model
         'sport_id',
         'name',
         'slug',
+        'category',
+        'capacity',
         'base_price_per_hour',
         'description',
         'is_active',
@@ -27,6 +29,7 @@ class Court extends Model
         return [
             'base_price_per_hour' => 'decimal:2',
             'is_active' => 'boolean',
+            'capacity' => 'integer',
         ];
     }
 

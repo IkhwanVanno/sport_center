@@ -40,6 +40,8 @@ class CourtRequest extends FormRequest
         $rules = [
             'sport_id' => ['required', 'exists:sports,id'],
             'name' => ['required', 'string', 'max:100'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'capacity' => ['nullable', 'integer', 'min:1'],
             'base_price_per_hour' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'is_active' => ['sometimes', 'boolean'],

@@ -43,11 +43,11 @@
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light border dropdown-toggle rounded-pill px-3 py-1.5 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         @if(Auth::user()->isSuperAdmin())
-                            <i class="bi bi-shield-shaded text-danger me-1"></i>
-                            <span class="text-danger">SUPERADMIN</span>
+                        <i class="bi bi-shield-shaded text-danger me-1"></i>
+                        <span class="text-danger">SUPERADMIN</span>
                         @else
-                            <i class="bi bi-shield-lock-fill text-indigo me-1"></i>
-                            <span>ADMIN CABANG</span>
+                        <i class="bi bi-shield-lock-fill text-indigo me-1"></i>
+                        <span>ADMIN CABANG</span>
                         @endif
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
@@ -76,8 +76,10 @@
 
         <!-- Page Body Content -->
         <main class="flex-grow-1 p-3 p-md-4">
-            @include('components.alert')
-            @yield('content')
+            <div class="container">
+                @include('components.alert')
+                @yield('content')
+            </div>
         </main>
 
         <!-- Admin Footer -->
