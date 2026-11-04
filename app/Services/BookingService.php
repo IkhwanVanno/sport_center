@@ -32,6 +32,21 @@ class BookingService
         $date = $this->normalizeDate($date);
         $hours = $this->normalizeHours($slots);
 
+        // Jika booking hari ini, pastikan tidak ada slot jam yang sudah lewat
+        if ($date === Carbon::today()->format('Y-m-d')) {
+            $now  = Carbon::now();
+            $lewat = array_values(array_filter(
+                $hours,
+                fn (string $hour): bool => Carbon::createFromFormat('H:i', $hour)->lte($now),
+            ));
+
+            if ($lewat !== []) {
+                throw ValidationException::withMessages([
+                    'slots' => 'Slot jam '.implode(', ', $lewat).' sudah lewat. Pilih jam yang belum berlalu untuk hari ini.',
+                ]);
+            }
+        }
+
         return DB::transaction(function () use ($user, $court, $date, $hours, $notes) {
             $court = $this->lockCourt($court);
 
@@ -108,9 +123,17 @@ class BookingService
 
     private function normalizeDate(string $date): string
     {
+        // Cek format YYYY-MM-DD
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) !== 1 || date('Y-m-d', strtotime($date)) !== $date) {
             throw ValidationException::withMessages([
                 'date' => 'Tanggal sewa tidak valid.',
+            ]);
+        }
+
+        // Tanggal tidak boleh sebelum hari ini
+        if ($date < Carbon::today()->format('Y-m-d')) {
+            throw ValidationException::withMessages([
+                'date' => 'Tanggal sewa tidak boleh sebelum hari ini.',
             ]);
         }
 

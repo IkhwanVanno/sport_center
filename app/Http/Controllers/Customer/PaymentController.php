@@ -50,6 +50,11 @@ class PaymentController extends Controller
                 ->with('error', 'Booking ini sudah tidak berlaku (telah kedaluwarsa atau dibatalkan).');
         }
 
+        if ($booking->payment_status === 'paid') {
+            return redirect()->route('user.bookings.show', $booking->booking_code)
+                ->with('error', 'Booking ini sudah lunas, bukti transfer tidak perlu diunggah lagi.');
+        }
+
         $request->validate([
             'proof_of_payment' => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
             'bank_sender' => 'nullable|string|max:100',
@@ -82,6 +87,9 @@ class PaymentController extends Controller
 
     /**
      * Webhook notification dari Payment Gateway (contoh Midtrans / QRIS).
+     *
+     * Belum dipakai karena pembayaran masih manual, disimpan untuk persiapan
+     * kalau nanti mau diaktifkan kembali.
      */
     public function handleWebhook(Request $request): JsonResponse
     {
@@ -89,12 +97,12 @@ class PaymentController extends Controller
         $orderId = $payload['order_id'] ?? null;
         $transactionStatus = $payload['transaction_status'] ?? null;
 
-        if (!$orderId) {
+        if (! $orderId) {
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
         $booking = Booking::where('booking_code', $orderId)->first();
-        if (!$booking) {
+        if (! $booking) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
 

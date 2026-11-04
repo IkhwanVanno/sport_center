@@ -14,6 +14,7 @@ use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -42,7 +43,7 @@ class CheckInController extends Controller
     public function verify(Request $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validate([
-            'booking_code' => 'requi red|string',
+            'booking_code' => 'required|string',
         ]);
 
         $operator = $request->user();
@@ -51,18 +52,20 @@ class CheckInController extends Controller
             ->where('booking_code', trim($validated['booking_code']))
             ->first();
 
-        if (!$booking) {
+        if (! $booking) {
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Kode booking tidak ditemukan di sistem.'], 404);
             }
+
             return back()->with('error', 'Kode booking tidak ditemukan.');
         }
 
         if ($operator?->branch_id && $booking->court->branch_id !== $operator->branch_id) {
-            $message = 'Gagal! Kode booking ini milik cabang ' . $booking->court->branch->name . '.';
+            $message = 'Gagal! Kode booking ini milik cabang '.$booking->court->branch->name.'.';
             if ($request->wantsJson()) {
                 return response()->json(['message' => $message], 403);
             }
+
             return back()->with('error', $message);
         }
 
@@ -70,6 +73,7 @@ class CheckInController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Booking ini sudah di-check-in sebelumnya.'], 422);
             }
+
             return back()->with('warning', 'Booking ini sudah berstatus Check-In (Sedang Bermain).');
         }
 
@@ -77,6 +81,7 @@ class CheckInController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Booking belum berstatus lunas / dikonfirmasi.'], 422);
             }
+
             return back()->with('error', 'Booking belum dikonfirmasi atau belum lunas.');
         }
 
@@ -104,7 +109,7 @@ class CheckInController extends Controller
         $branchId = $operator?->branch_id;
 
         $courts = Court::where('is_active', true)
-            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->with(['sport', 'branch'])
             ->get();
 
@@ -135,41 +140,43 @@ class CheckInController extends Controller
             'notes' => 'nullable|string|max:255',
         ]);
 
-        $operator = $request->user();
+        $booking = DB::transaction(function () use ($validated, $operator, $bookingService): Booking {
+            // Cari atau buat user representasi pelanggan walk-in
+            $phone = $validated['customer_phone'] ?? '08000000000';
+            $emailSanitized = 'walkin.'.preg_replace('/[^0-9]/', '', $phone).'.'.time().'@sportcenter.local';
 
-        // Cari atau buat user representasi pelanggan walk-in
-        $phone = $validated['customer_phone'] ?? '08000000000';
-        $emailSanitized = 'walkin.' . preg_replace('/[^0-9]/', '', $phone) . '.' . time() . '@sportcenter.local';
+            $walkinCustomer = User::create([
+                'name' => $validated['customer_name'].' (Walk-In)',
+                'email' => $emailSanitized,
+                'phone_number' => $phone,
+                'password' => Hash::make(Str::random(16)),
+                'role' => 'customer',
+            ]);
 
-        $walkinCustomer = User::create([
-            'name' => $validated['customer_name'] . ' (Walk-In)',
-            'email' => $emailSanitized,
-            'phone_number' => $phone,
-            'password' => Hash::make(Str::random(16)),
-            'role' => 'customer',
-        ]);
+            $booking = $bookingService->book(
+                $walkinCustomer,
+                (int) $validated['court_id'],
+                $validated['date'],
+                $validated['slots'],
+                '[Walk-In Kasir: '.($operator?->name ?? 'Kasir').'] '.($validated['notes'] ?? ''),
+            );
 
-        $booking = $bookingService->book(
-            $walkinCustomer,
-            (int) $validated['court_id'],
-            $validated['date'],
-            $validated['slots'],
-            '[Walk-In Kasir: ' . ($operator?->name ?? 'Kasir') . '] ' . ($validated['notes'] ?? ''),
-        );
+            // Langsung tandai lunas karena pembayaran tunai di kasir
+            $booking->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+            ]);
 
-        // Langsung tandai lunas karena pembayaran tunai di kasir
-        $booking->update([
-            'status' => 'confirmed',
-            'payment_status' => 'paid',
-        ]);
+            Payment::create([
+                'booking_id' => $booking->id,
+                'payment_method' => 'cash',
+                'amount' => $booking->total_amount,
+                'status' => 'success',
+                'paid_at' => now(),
+            ]);
 
-        Payment::create([
-            'booking_id' => $booking->id,
-            'payment_method' => 'cash',
-            'amount' => $booking->total_amount,
-            'status' => 'success',
-            'paid_at' => now(),
-        ]);
+            return $booking;
+        });
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -179,7 +186,7 @@ class CheckInController extends Controller
         }
 
         return redirect()->route('operator.checkin.index', ['code' => $booking->booking_code])
-            ->with('success', 'Booking walk-in berhasil! Kode Booking: ' . $booking->booking_code . ' (Lunas Tunai)');
+            ->with('success', 'Booking walk-in berhasil! Kode Booking: '.$booking->booking_code.' (Lunas Tunai)');
     }
 
     /**
@@ -192,7 +199,7 @@ class CheckInController extends Controller
         $date = $request->input('date', today()->toDateString());
 
         $courts = Court::where('is_active', true)
-            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->with(['sport', 'branch'])
             ->get();
 
