@@ -67,14 +67,14 @@ trait CreatesCourts
     protected function makeBooking(Court $court, array $attributes = [], array $items = []): Booking
     {
         $booking = Booking::create(array_merge([
-            'booking_code' => 'BK-'.Str::upper(Str::random(8)),
-            'user_id' => $this->makeCustomer()->id,
-            'court_id' => $court->id,
-            'booking_date' => '2026-01-05',
-            'total_amount' => 100000,
-            'status' => 'confirmed',
+            'booking_code'  => 'BK-'.Str::upper(Str::random(8)),
+            'user_id'       => $this->makeCustomer()->id,
+            'court_id'      => $court->id,
+            'booking_date'  => \Carbon\Carbon::tomorrow()->format('Y-m-d'),
+            'total_amount'  => 100000,
+            'status'        => 'confirmed',
             'payment_status' => 'unpaid',
-            'expired_at' => now()->addMinutes(15),
+            'expired_at'    => now()->addMinutes(15),
         ], $attributes));
 
         foreach ($items as $item) {
