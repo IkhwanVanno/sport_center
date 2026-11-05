@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Middleware trust proxies, dipakai untuk request dari reverse proxy (misal Cloudflare).
+        $middleware->trustProxies(at: '*');
+
         // Alias middleware custom, dipakai lewat "role:admin,operator" di route.
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
